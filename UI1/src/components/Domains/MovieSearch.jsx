@@ -12,8 +12,7 @@ const MovieSearch = ({ setSelectedMovies }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedMovies, setSelectedMoviesState] = useState([]);
   const moviesPerPage = 12;
-  {/*const apiKey = import.meta.env.VITE_OMDB_API_KEY;*/}
-  const apiKey= "84f6272e"
+  const apiKey = import.meta.env.VITE_OMDB_API_KEY;
   console.log('API Key:', apiKey);
   const navigate = useNavigate();
 
