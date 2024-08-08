@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import axios from 'axios';
-import Logo from '/home/sree/Desktop/test/vite-project/src/twitter-logo.png'; // Import your Twitter logo or any other image
+import Logo from '../../twitter-logo.png'; // Import your Twitter logo or any other image
 import 'tailwindcss/tailwind.css'; // Ensure Tailwind CSS is properly imported
 import WordCloudComponent from "../Graphs/WordCloudComponent";
 

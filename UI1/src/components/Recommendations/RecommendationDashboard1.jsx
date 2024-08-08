@@ -37,7 +37,6 @@ const RecommendationDashboard1 = ({
   const [selectedItem1, setSelectedItem1] = useState(null);
   const [jobId, setJobId] = useState(null);
   const [showExplanation, setShowExplanation] = useState(false);
-  const [hoveredData, setHoveredData] = useState(null);
   // Load CSV Data
   useEffect(() => {
     loadCsvData("/finalmetabooks.csv"); // Replace with your CSV file path
@@ -91,7 +90,7 @@ const RecommendationDashboard1 = ({
   useEffect(() => {
     if (jobId) {
       const interval = setInterval(() => {
-        axios.get(`https://multiproduct-3dd536e7ecf6.herokuapp.com/job-status/${jobId}`)
+        axios.get(`https://multiproduct-49d2e5762a96.herokuapp.com/job-status/${jobId}`)
           .then(response => {
             if (response.status === 200) {
               if (response.data.status === 'in progress') {
@@ -136,7 +135,7 @@ const RecommendationDashboard1 = ({
     setError(null);
     try {
       const response = await axios.post(
-        "https://multiproduct-3dd536e7ecf6.herokuapp.com/getRecommendation",
+        "https://multiproduct-49d2e5762a96.herokuapp.com/getRecommendation",
         {
           selection: {
             Movies_and_TV: selectedMovies,
@@ -248,10 +247,7 @@ const RecommendationDashboard1 = ({
                         <p className="font-semibold">Explanation:</p> {safeParse(recommendations["in-domain"][selectedDomain].top_best)["product 1"].reason}
                       </p>
                     )}
-                    <Ratingplot bookTitle={safeParse(recommendations["in-domain"][selectedDomain].top_best)["product 1"]["product name"]} domain={selectedDomain} setHoveredData={setHoveredData}/>
-                    <div className="w-1/3 p-4">
-        <Sidebar1 hoveredData={hoveredData} />
-      </div>                  
+                    <Ratingplot bookTitle={safeParse(recommendations["in-domain"][selectedDomain].top_best)["product 1"]["product name"]} domain={selectedDomain}/>                
                   </div>
                 </div>
               )}

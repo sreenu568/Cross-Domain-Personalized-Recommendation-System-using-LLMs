@@ -16,10 +16,12 @@ import {
 } from "recharts";
 import Papa from "papaparse";
 import WordCloudGraph from "./WordCloudGraph";
-import CustomBarChart from "./CustomBarChart";
-import CustomPieChart from "./CustomPieChart";
-import WordCloudComponent from "./WordCloudComponent";
-import Sidebar from "./Sidebar";
+import CustomBarChart from "../Graphs/CustomBarChart";
+import CustomPieChart from "../Graphs/CustomPieChart";
+import WordCloudComponent from "../Graphs/WordCloudComponent";
+import Sidebar from "../Graphs/Sidebar";
+import Sidebar1 from "../Graphs/Sidebar1";
+
 const LLMComponent = ({
   tweets,
   selectedBooks,
@@ -45,6 +47,11 @@ const LLMComponent = ({
   const [featureSentences, setFeatureSentences] = useState([]);
   const [selectedItem, setSelectedItem] = useState("");
   const [selectedItem1, setSelectedItem1] = useState("");
+  const [hoveredItem, setHoveredItem] = useState("");
+  const [hoveredItem1, setHoveredItem1] = useState("");
+  const [hoveredData, setHoveredData] = useState(null);
+  const [hoveredData1, setHoveredData1] = useState(null);
+  const [hoveredData2, setHoveredData2] = useState(null);
 
   useEffect(() => {
     loadCsvData("/finalmetabooks.csv"); // Replace with your CSV file path
@@ -232,17 +239,11 @@ const LLMComponent = ({
       const rating = payload[0].payload.rating;
       const count = payload[0].payload.count;
       const reviews = payload[0].payload.reviews;
+      setHoveredData({ rating, count, reviews }); // Update hovered data
       return (
         <div className="custom-tooltip bg-white shadow-md p-2 rounded-md max-w-xs w-auto">
           <p className="label font-bold">{`No. of users ${count}`}</p>
           <p className="label font-bold">{`Rating ${rating}`}</p>
-          <ul className="list-disc list-inside text-left mt-2">
-            {reviews.map((review, index) => (
-              <li key={index} className="text-sm text-gray-700 break-words">
-                {review}
-              </li>
-            ))}
-          </ul>
         </div>
       );
     }
@@ -255,12 +256,12 @@ const LLMComponent = ({
       const date = new Date(label).toLocaleDateString();
       const rating = payload[0].value;
       const review = payload[0].payload.review; // Assuming review data is in payload
+      setHoveredData1({ date, rating, review }); // Update hovered data
 
       return (
         <div className="custom-tooltip bg-white p-2 shadow-md rounded">
           <p className="label">{`Date: ${date}`}</p>
           <p className="rating">{`Rating: ${rating}`}</p>
-          <p className="review">{`Review: ${review}`}</p>
         </div>
       );
     }
@@ -274,12 +275,12 @@ const LLMComponent = ({
       const rating = payload[0].payload.x;
       const price = payload[0].payload.y;
       const review = payload[0].payload.review; // Assuming review data is in payload
+      setHoveredData2({ rating, price, review }); // Update hovered data
 
       return (
         <div className="custom-tooltip bg-white p-2 shadow-md rounded">
           <p className="label">{`Average Rating: ${rating}`}</p>
           <p className="price">{`Price: $${price}`}</p>
-          <p className="review">{`Review: ${review}`}</p>
         </div>
       );
     }
@@ -386,8 +387,9 @@ const LLMComponent = ({
       <div className="mt-8">
         <h2 className="text-2xl font-bold mb-4">User Insights</h2>
 
+        
         {/* Custom Pie Chart */}
-        <div className="flex">
+        <div className="flex relative">
           {/* Pie Chart Section */}
           <div className="bg-white p-4 rounded-md shadow-md mt-4 w-2/3">
             <h3 className="text-lg font-bold mb-2">
@@ -397,20 +399,23 @@ const LLMComponent = ({
               data={pieChartData}
               detailedItems={detailedItems}
               setSelectedItem={setSelectedItem}
+              setHoveredItem={setHoveredItem}
             />
           </div>
 
           {/* Sidebar Section */}
-          <div className="bg-white p-4 rounded-md shadow-2xl w-1/3">
-            <Sidebar
-              selectedItem={selectedItem}
-              detailedItems={detailedItems}
-            />
-          </div>
+          {hoveredItem && (
+            <div className="bg-white p-4 rounded-md shadow-2xl w-1/3 absolute right-0 top-0 mt-4">
+              <Sidebar
+                selectedItem={hoveredItem}
+                detailedItems={detailedItems}
+              />
+            </div>
+          )}
         </div>
 
         {/* Custom Bar Chart Section */}
-        <div className="flex">
+        <div className="flex relative">
           <div className="bg-white p-4 rounded-md shadow-md mt-4 w-2/3">
             <h3 className="text-lg font-bold mb-2">
               Bar Chart for User History
@@ -419,18 +424,21 @@ const LLMComponent = ({
               data={barChartData}
               detailedItems={detailedItems}
               setSelectedItem={setSelectedItem1}
+              setHoveredItem={setHoveredItem1}
             />
           </div>
           {/* Sidebar Section */}
-          <div className="bg-white p-4 rounded-md shadow-2xl w-1/3">
-            <Sidebar
-              selectedItem={selectedItem1}
-              detailedItems={detailedItems}
-            />
-          </div>
+          {hoveredItem1 && (
+            <div className="bg-white p-4 rounded-md shadow-2xl w-1/3 absolute right-0 top-0 mt-4">
+              <Sidebar
+                selectedItem={hoveredItem1}
+                detailedItems={detailedItems}
+              />
+            </div>
+          )}
         </div>
-
-        {/* Word Cloud Component */}
+        
+          {/* Word Cloud Component */}
         <div className="bg-white p-4 rounded-md shadow-md mt-4">
           <h3 className="text-lg font-bold mb-2">User Tweets</h3>
           {tweets && tweets.length > 0 && (
@@ -440,9 +448,9 @@ const LLMComponent = ({
       </div>
 
       {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
+      <div className="flex relative">
         {/* Ratings vs. Number of Users */}
-        <div className="bg-white p-4 rounded-md shadow-md">
+          <div className="bg-white p-4 rounded-md shadow-md mt-4 w-2/3">
           <h3 className="text-lg font-bold mb-2">
             Ratings vs. Number of Users
           </h3>
@@ -458,8 +466,16 @@ const LLMComponent = ({
           </ResponsiveContainer>
         </div>
 
+        {hoveredData && (
+            <div className="bg-white p-4 rounded-md shadow-2xl w-1/3 absolute right-0 top-0 mt-4">
+        <Sidebar1 hoveredData={hoveredData} />
+      </div>
+        )}
+        </div>
+
         {/* Ratings Over Time */}
-        <div className="bg-white p-4 rounded-md shadow-md">
+        <div className="flex relative">
+          <div className="bg-white p-4 rounded-md shadow-md mt-4 w-2/3">
           <h3 className="text-lg font-bold mb-2">Ratings Over Time</h3>
           <ResponsiveContainer width="100%" height={400}>
             <LineChart data={timeSeriesData}>
@@ -492,9 +508,15 @@ const LLMComponent = ({
             </LineChart>
           </ResponsiveContainer>
         </div>
-
+        {hoveredData1 && (
+            <div className="bg-white p-4 rounded-md shadow-2xl w-1/3 absolute right-0 top-0 mt-4">
+        <Sidebar1 hoveredData={hoveredData1} />
+      </div>
+        )}
+        </div>
         {/* Average Rating vs Price */}
-        <div className="bg-white p-4 rounded-md shadow-md">
+        <div className="flex relative">
+        <div className="bg-white p-4 rounded-md shadow-md mt-4 w-2/3">
           <h3 className="text-lg font-bold mb-2">Average Rating vs Price</h3>
           <ResponsiveContainer width="100%" height={400}>
             <ScatterChart>
@@ -510,27 +532,34 @@ const LLMComponent = ({
             </ScatterChart>
           </ResponsiveContainer>
         </div>
+        {hoveredData2 && (
+            <div className="bg-white p-4 rounded-md shadow-2xl w-1/3 absolute right-0 top-0 mt-4">
+        <Sidebar1 hoveredData={hoveredData2} />
+      </div>
+        )}
       </div>
 
+      <div>
+
+      <div className="w-200">
       {/* Reviews and Features Word Clouds */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
         {/* Reviews Word Cloud */}
-        <div className="bg-white p-4 rounded-md shadow-md">
-          <h2 className="text-2xl font-bold text-center text-blue-700">
+        <div>
+          <h2 className="text-2xl font-bold text-left text-black-700">
             Reviews
           </h2>
           <WordCloudGraph sentences={reviewSentences} />
         </div>
-
+        </div>
         {/* Features Word Cloud */}
-        <div className="bg-white p-4 rounded-md shadow-md">
-          <h2 className="text-2xl font-bold text-center text-blue-700">
+        <div className=" w-200">
+          <h2 className="text-2xl font-bold text-left text-black-700">
             Features
           </h2>
           <WordCloudGraph sentences={featureSentences} />
         </div>
       </div>
-    </div>
+      </div>
   );
 };
 

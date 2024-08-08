@@ -1,6 +1,6 @@
+import React, { useMemo, useState, useEffect } from 'react';
 import WordCloud from 'react-wordcloud';
-import { Tooltip as ReactTooltip } from 'react-tooltip';
-import React, { useMemo } from 'react';
+import Wordcloudside from './Wordcloudside';
 import 'react-tooltip/dist/react-tooltip.css';
 
 // List of common stopwords
@@ -22,6 +22,13 @@ const stopwords = new Set([
 ]);
 
 const WordCloudGraph = ({ sentences }) => {
+  const [selectedWordSentences, setSelectedWordSentences] = useState([]);
+  const [hoveredWord, setHoveredWord] = useState(null); // State to manage hover status
+
+  useEffect(() => {
+    console.log("Selected Word Sentences Updated:", selectedWordSentences);
+  }, [selectedWordSentences]);
+
   const words = useMemo(() => {
     const text = sentences.join(' ');
 
@@ -49,7 +56,7 @@ const WordCloudGraph = ({ sentences }) => {
 
   // Get sentences for each word
   const wordToSentences = useMemo(() => {
-    return sentences.reduce((acc, sentence) => {
+    const result = sentences.reduce((acc, sentence) => {
       sentence.split(/\s+/).forEach((word) => {
         const cleanedWord = word.replace(/[^\w\s]|_/g, '').toLowerCase();
         if (
@@ -65,11 +72,27 @@ const WordCloudGraph = ({ sentences }) => {
       });
       return acc;
     }, {});
+    console.log("Word to Sentences Map:", result); // Check if this logs
+    return result
   }, [sentences]);
 
+  const handleWordHover = (word) => {
+    console.log("Hovered Word:", word.text);
+    const cleanedWord = word.text.toLowerCase();
+    const sentencesForWord = wordToSentences[cleanedWord] || [];
+    console.log("Sentences for Word:", sentencesForWord);
+    setSelectedWordSentences(sentencesForWord); // Update state
+    setHoveredWord(word.text); // Set hovered word
+  };
+
+  const handleWordLeave = () => {
+    setSelectedWordSentences([]); // Clear sentences
+    setHoveredWord(null); // Reset hovered word
+  };
+
   const options = {
-    rotations: 2,
-    rotationAngles: [-90, 0],
+    rotations: 1,
+    rotationAngles: [ 0],
     fontSizes: [20, 60],
     enableOptimizations: true,
     deterministic: true,
@@ -77,26 +100,23 @@ const WordCloudGraph = ({ sentences }) => {
   };
 
   return (
-    <div style={{ height: 400, width: 600, position: 'relative' }}>
+    <div className="flex">
+    <div className="flex w-2/3">
       <WordCloud
         words={words}
         options={options}
         callbacks={{
-          getWordTooltip: (word) => {
-            const sentencesForWord = wordToSentences[word.text] || [];
-            return sentencesForWord.join('<br />');
-          },
+          onWordMouseOver: handleWordHover, // Handle hover event
+          onWordMouseLeave: handleWordLeave, // Handle hover out event
         }}
       />
-      <ReactTooltip
-        html={true}
-        effect="solid"
-        backgroundColor="rgba(0, 0, 0, 0.75)"
-        textColor="#fff"
-        border={true}
-        borderColor="#fff"
-      />
     </div>
+    {hoveredWord && (
+      <div className="flex bg-gray-50 p-4 rounded-md shadow-md border-l border-gray-300">
+        <Wordcloudside sentences={selectedWordSentences} />
+      </div>
+    )}
+  </div>
   );
 };
 

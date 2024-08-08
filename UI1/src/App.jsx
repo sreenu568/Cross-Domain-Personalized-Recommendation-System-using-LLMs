@@ -11,6 +11,7 @@ import RecommendationDashboard1 from './components/Recommendations/Recommendatio
 import Mainsidebar from './components/NavBar/Mainsidebar';
 import Books from './components/Domains/Books';
 import Personalize from './components/Graphs/Personalize';
+import LLMComponent from './components/Recommendations/LLMComponent';
 
 function App() {
   const [selectedMovies, setSelectedMovies] = useState([]);
@@ -89,6 +90,17 @@ function App() {
                   username={username} 
                 />} 
               />
+              {/*<Route 
+                path="/llm" 
+                element={<LLMComponent 
+                  selectedMovies={selectedMovies} 
+                  selectedBooks={selectedBooks} 
+                  tweets={selectedTweets} 
+                  beauty={selectedBeauty} 
+                  fashion={selectedFashion} 
+                  phones={selectedPhones}  
+                />} 
+              />*/}
             </Routes>
           </div>
         </div>
