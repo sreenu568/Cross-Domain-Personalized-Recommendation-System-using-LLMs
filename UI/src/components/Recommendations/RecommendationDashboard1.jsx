@@ -90,7 +90,7 @@ const RecommendationDashboard1 = ({
   useEffect(() => {
     if (jobId) {
       const interval = setInterval(() => {
-        axios.get(`https://multiproduct-49d2e5762a96.herokuapp.com/job-status/${jobId}`)
+        axios.get(`https://multiproduct-cb819d4949f3.herokuapp.com/job-status/${jobId}`)
           .then(response => {
             if (response.status === 200) {
               if (response.data.status === 'in progress') {
@@ -135,7 +135,7 @@ const RecommendationDashboard1 = ({
     setError(null);
     try {
       const response = await axios.post(
-        "https://multiproduct-49d2e5762a96.herokuapp.com/getRecommendation",
+        "https://multiproduct-cb819d4949f3.herokuapp.com/getRecommendation",
         {
           selection: {
             Movies_and_TV: selectedMovies,
