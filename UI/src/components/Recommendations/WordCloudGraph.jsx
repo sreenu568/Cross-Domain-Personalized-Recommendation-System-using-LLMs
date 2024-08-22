@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import WordCloud from 'react-wordcloud';
+import ReactWordCloud from 'react-wordcloud';
 import Wordcloudside from './Wordcloudside';
 import 'react-tooltip/dist/react-tooltip.css';
 
@@ -21,14 +21,14 @@ const stopwords = new Set([
   'just', 'don', 'should', 'now'
 ]);
 
-const WordCloudGraph = ({ sentences }) => {
+const WordCloudGraph = ({ sentences, name }) => {
   const [selectedWordSentences, setSelectedWordSentences] = useState([]);
   const [hoveredWord, setHoveredWord] = useState(null); // State to manage hover status
 
   useEffect(() => {
     console.log("Selected Word Sentences Updated:", selectedWordSentences);
   }, [selectedWordSentences]);
-
+  
   const words = useMemo(() => {
     const text = sentences.join(' ');
 
@@ -92,31 +92,35 @@ const WordCloudGraph = ({ sentences }) => {
 
   const options = {
     rotations: 1,
-    rotationAngles: [ 0],
+    enableTooltip: false, // Disable tooltips
+    rotationAngles: [0],
     fontSizes: [20, 60],
     enableOptimizations: true,
     deterministic: true,
     padding: 2,
+    scale: "sqrt",
+    spiral: "archimedean",
+    transitionDuration: 1000,
   };
 
   return (
     <div className="flex">
-    <div className="flex w-2/3">
-      <WordCloud
-        words={words}
-        options={options}
-        callbacks={{
-          onWordMouseOver: handleWordHover, // Handle hover event
-          onWordMouseLeave: handleWordLeave, // Handle hover out event
-        }}
-      />
-    </div>
-    {hoveredWord && (
-      <div className="flex bg-gray-50 p-4 rounded-md shadow-md border-l border-gray-300">
-        <Wordcloudside sentences={selectedWordSentences} />
+      <div className="flex w-2/3">
+        <ReactWordCloud
+          words={words}
+          options={options}
+          callbacks={{
+            onWordMouseOver: handleWordHover, // Handle hover event
+            onWordMouseLeave: handleWordLeave, // Handle hover out event
+          }}
+        />
       </div>
-    )}
-  </div>
+      {hoveredWord && (
+        <div className="flex bg-gray-50 p-4 rounded-md shadow-md border-l border-gray-300">
+          <Wordcloudside sentences={selectedWordSentences} types={name} />
+        </div>
+      )}
+    </div>
   );
 };
 

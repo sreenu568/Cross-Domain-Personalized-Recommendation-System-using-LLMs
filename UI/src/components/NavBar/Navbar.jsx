@@ -16,6 +16,7 @@ const Navbar = ({ selectedDomain }) => {
         {/*<Link to='/llm' className='text-black-500 text-2xl font-semibold'> Book domain</Link>*/}
         <Link to='/personalize' className='text-black-500 text-2xl font-semibold'> Personalize</Link>
          <Link to='/llm1' className='text-black-500 text-2xl font-semibold'> Recommendations</Link>
+        {/* <Link to='/llm2' className='text-black-500 text-2xl font-semibold'> Recommendations1</Link>*/}
          
     </div>
   );

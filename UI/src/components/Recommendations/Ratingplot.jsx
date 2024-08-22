@@ -314,16 +314,16 @@ const Ratingplot = ({ bookTitle, domain }) => {
           {/* Reviews and Features Word Clouds */}
           <div>
             <h2 className="text-2xl font-bold text-left text-black-700">
-              Reviews
+            Product Review Buzzwords
             </h2>
-            <WordCloudGraph sentences={reviewSentences} />
+            <WordCloudGraph sentences={reviewSentences} name="reviews"/>
           </div>
         </div>
         <div className="w-200">
           <h2 className="text-2xl font-bold text-left text-black-700">
-            Features
+            Product Feature Cloud
           </h2>
-          <WordCloudGraph sentences={featureSentences} />
+          <WordCloudGraph sentences={featureSentences} name="features"/>
         </div>
       </div>
     </div>

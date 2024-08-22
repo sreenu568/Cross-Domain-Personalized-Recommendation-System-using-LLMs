@@ -1,13 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import Papa from 'papaparse';
-import Ratingplot from './Ratingplot';
-import { useRecommendations } from './RecommendationsContext'; //
+// This code is for just passing the recommendation data from another component and displaying dashboard without using any API
 
+
+
+import axios from "axios";
+import "tailwindcss/tailwind.css";
+import React, { useState, useEffect } from "react";
+import Papa from "papaparse";
+import Ratingplot from "./Ratingplot";
 
 // Placeholder image URL
-
-
 const placeholderImage = "https://via.placeholder.com/150";
 
 const domainNameMapping = {
@@ -18,32 +19,16 @@ const domainNameMapping = {
   "Cell_Phones_and_Accessories": "Phones",
 };
 
-const RecommendationDashboard2 = ({
-  tweets,
-  selectedBooks,
-  selectedMovies,
-  beauty,
-  fashion,
-  phones,
-  username,
-  onRecommendedProducts,
-  recommendedProducts = {}, // Initialize as an empty object
+const RecommendationDashboard4 = ({
+  recommendedProducts,
 }) => {
-  const {
-    recommendations,
-    setRecommendations,
-    selectedDomain,
-    setSelectedDomain,
-    loading,
-    setLoading,
-    showExplanation,
-    setShowExplanation,
-    showProductName,
-    setShowProductName,
-  } = useRecommendations(); // Use the context
-
+  const [recommendations, setRecommendations] = useState({});
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [csvData, setCsvData] = useState([]);
+  const [selectedDomain, setSelectedDomain] = useState('');
+  const [showExplanation, setShowExplanation] = useState(true);
+  const [showProductName, setShowProductName] = useState({}); // Object to store visibility state for each product
 
   useEffect(() => {
     loadCsvData("/finalmetabooks.csv"); // Replace with your CSV file path
@@ -72,90 +57,6 @@ const RecommendationDashboard2 = ({
     }
   };
 
-  useEffect(() => {
-    onRecommendedProducts(recommendations);
-  }, [recommendations, onRecommendedProducts]);
-
-  const fetchRecommendationsForDomain = async (domain) => {
-    const selection = {
-      Movies_and_TV: selectedMovies,
-      Books: selectedBooks,
-      All_Beauty: beauty,
-      Amazon_Fashion: fashion,
-      Cell_Phones_and_Accessories: phones,
-    };
-
-    try {
-      const response = await axios.post(
-        "http://127.0.0.1:5000/getRecomByDomainIndomain",
-        {
-          selection: {
-            [domain]: selection[domain] || [], // Include only the selected domain with its data
-          },
-          personality: "Based on the provided Twitter posts, the user appears",
-        }
-      );
-      console.log(`Recommended data for ${domain}:`, response.data);
-      return { domain, data: response.data };
-    } catch (err) {
-      console.error(`Error fetching recommendations for ${domain}:`, err);
-      setError(`Error fetching recommendations for ${domain}`);
-      return { domain, data: null };
-    }
-  };
-
-  const handleRecommendation = async () => {
-    if (
-      tweets.length === 0 &&
-      selectedBooks.length === 0 &&
-      selectedMovies.length === 0
-    ) {
-      setError(
-        "Please select at least one book, movie, or tweet for recommendations."
-      );
-      return;
-    }
-
-    if (!selectedDomain) {
-      setError("Please select a domain.");
-      return;
-    }
-
-    setLoading((prev) => ({ ...prev, [selectedDomain]: true }));
-    setError(null);
-
-    const domainsToFetch = Object.keys(domainNameMapping);
-    const results = await Promise.all(
-      domainsToFetch.map((domain) => fetchRecommendationsForDomain(domain))
-    );
-
-    const newRecommendations = results.reduce((acc, result) => {
-      const { domain, data } = result;
-      if (data) {
-        const inDomainData = data["in-domain"][domain] || {};
-        acc[domain] = {
-          top_5: parseJsonString(inDomainData.top_5 || '{}'),
-          top_best: parseJsonString(inDomainData.top_best || '{}'),
-        };
-      } else {
-        acc[domain] = {};
-      }
-      return acc;
-    }, {});
-
-    setRecommendations((prevRecommendations) => ({
-      ...prevRecommendations,
-      ...newRecommendations,
-    }));
-
-    setLoading((prev) => ({ ...prev, [selectedDomain]: false }));
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    handleRecommendation();
-  };
-
   const handleDomainChange = (event) => {
     setSelectedDomain(event.target.value);
   };
@@ -170,7 +71,7 @@ const RecommendationDashboard2 = ({
       [productName]: !prevState[productName]
     }));
   };
-
+  
   return (
     <div className="mt-8">
       <label htmlFor="domain-select" className="block text-lg font-semibold mb-2">
@@ -190,20 +91,10 @@ const RecommendationDashboard2 = ({
         ))}
       </select>
 
-      <div className="container mx-auto pt-4">
-        <form onSubmit={handleSubmit} className="mb-4">
-          <button type="submit" className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
-            Explore Personalize Recommendations
-          </button>
-        </form>
-        {Object.keys(loading).some(key => loading[key]) && <p>Loading...</p>}
-        {error && <p>{error}</p>}
-      </div>
-
       {selectedDomain && recommendedProducts[selectedDomain] && (
         <div className="mt-8">
           <h2 className="text-2xl font-bold mb-4">Recommendations for {domainNameMapping[selectedDomain]}</h2>
-          {recommendedProducts[selectedDomain]?.top_5 && (
+          {recommendedProducts[selectedDomain].top_5 && (
             <div className="mb-4">
               <h3 className="text-lg font-semibold mb-2">Top 5 Recommendations</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
@@ -226,7 +117,7 @@ const RecommendationDashboard2 = ({
               </div>
             </div>
           )}
-          {recommendedProducts[selectedDomain]?.top_best && (
+          {recommendedProducts[selectedDomain].top_best && (
             <div className="mb-4">
               <h3 className="text-lg font-semibold mb-2">Top Best Recommendation</h3>
               <div className="border p-4 rounded flex items-center">
@@ -240,28 +131,27 @@ const RecommendationDashboard2 = ({
                     {recommendedProducts[selectedDomain].top_best["product 1"]["product name"]}
                   </p>
                   <button
-                    className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 mt-4"
+                    className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 mb-2"
                     onClick={handleExplanationToggle}
                   >
                     {showExplanation ? "Hide Explanation" : "Show Explanation"}
                   </button>
                   {showExplanation && (
-                    <p className="mt-2 text-gray-700 text-justify">
-                      {recommendedProducts[selectedDomain].top_best["product 1"]["product explanation"]}
+                    <p className="font-light text-justify">
+                      <span className="font-semibold">Explanation:</span> {recommendedProducts[selectedDomain].top_best["product 1"].reason}
                     </p>
                   )}
                 </div>
               </div>
             </div>
           )}
+          {recommendedProducts[selectedDomain].top_best && (
+            <Ratingplot bookTitle={"Watercolor with Me in the Jungle"} domain={selectedDomain}/>
+          )}
         </div>
-      )}
-
-      {recommendedProducts[selectedDomain]?.top_best && (
-        <Ratingplot bookTitle={"Watercolor with Me in the Jungle"} domain={selectedDomain}/>
       )}
     </div>
   );
 };
 
-export default RecommendationDashboard2;
+export default RecommendationDashboard4;
