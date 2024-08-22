@@ -68,25 +68,30 @@ const Personalize = ({
       name: item.title,
       description: item.details,
       image_url: item.image_url,
+      details:item.Details_in_format,
     })),
     Fashion: fashion.map((item) => ({
       name: item.title,
       description: item.details,
       image_url: item.image_url,
+      details:item.Details_in_format,
     })),
     Phones: phones.map((item) => ({
       name: item.title,
       description: item.details,
       image_url: item.image_url,
+      details:item.Details_in_format,
     })),
     Books: selectedBooks.map((item) => ({
       name: item.title,
       description: item.details,
       image_url: item.image_url,
+      details:item.Details_in_format,
     })),
     Movies: selectedMovies.map((item) => ({
       name: item.title,
       description: item.details,
+      details:item.Details_in_format,
     })),
     Tweets: tweets.map((item) => ({ name: item.text, price: null })),
   };

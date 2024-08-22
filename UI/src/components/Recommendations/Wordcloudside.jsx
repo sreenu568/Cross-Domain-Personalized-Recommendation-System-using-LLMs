@@ -1,15 +1,22 @@
 import React from 'react';
 
 const Wordcloudside = ({ sentences }) => {
-  console.log("Received Sentences:", sentences); // Check if this logs
+  // Filter unique sentences and take the top two
+  const uniqueSentences = Array.from(new Set(sentences)).slice(0, 2);
+
+  console.log("Received Sentences:", uniqueSentences); // Check if this logs
 
   return (
     <div className="bg-white p-4 rounded-md shadow-md">
       <h3 className="text-lg font-semibold mb-4">Sentences</h3>
-      {sentences.length > 0 ? (
-        sentences.map((sentence, index) => (
-          <p key={index} className="mb-2">{sentence}</p>
-        ))
+      {uniqueSentences.length > 0 ? (
+        uniqueSentences.length === 1 ? (
+          <p className="mb-2">{uniqueSentences[0]}</p>
+        ) : (
+          uniqueSentences.map((sentence, index) => (
+            <p key={index} className="mb-2">{sentence}</p>
+          ))
+        )
       ) : (
         <p className="text-gray-500">No sentences available</p>
       )}

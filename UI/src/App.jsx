@@ -4,10 +4,15 @@ import Navbar from './components/NavBar/Navbar'
 import './App.css';
 import MovieSearch from './components/Domains/MovieSearch';
 import Dashboard from './components/Twitter/Dashboard';
+import Dashboard1 from './components/Twitter/Dashboard1';
+import Dashboard2 from './components/Twitter/Dashboard2';
 import AllBeauty from './components/Domains/AllBeauty';
 import AmazonFashion from './components/Domains/AmazonFashion';
 import CellPhones from './components/Domains/CellPhones';
 import RecommendationDashboard1 from './components/Recommendations/RecommendationDashboard1';
+import RecommendationDashboard2 from './components/Recommendations/RecommendationDashboard2';
+import RecommendationDashboard from './components/Recommendations/RecommendationDashboard';
+import RecommendationDashboard3 from './components/Recommendations/RecommendationDashboard3';
 import Mainsidebar from './components/NavBar/Mainsidebar';
 import Books from './components/Domains/Books';
 import Personalize from './components/Graphs/Personalize';
@@ -44,7 +49,7 @@ function App() {
               />
               <Route 
                 path="/twitter" 
-                element={<Dashboard setSelectedTweets={setSelectedTweets} setUsername={setUsername}/>} 
+                element={<Dashboard1 setSelectedTweets={setSelectedTweets} setUsername={setUsername}/>} 
               />
               <Route 
                 path="/allbeauty" 
@@ -80,7 +85,7 @@ function App() {
               />
               <Route 
                 path="/llm1" 
-                element={<RecommendationDashboard1 
+                element={<RecommendationDashboard2 
                   selectedMovies={selectedMovies} 
                   selectedBooks={selectedBooks} 
                   tweets={selectedTweets} 

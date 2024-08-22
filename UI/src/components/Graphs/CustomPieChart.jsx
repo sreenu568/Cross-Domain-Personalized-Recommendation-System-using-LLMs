@@ -8,10 +8,13 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 
-const CustomPieChart = ({ data, detailedItems, setSelectedItem, setHoveredItem}) => {
+const CustomPieChart = ({ data, detailedItems, setSelectedItem, setHoveredItem }) => {
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#FF5555', '#6a5acd'];
 
-  const totalValue = data.reduce((sum, entry) => sum + entry.value, 0);
+  // Filter out data with zero value
+  const filteredData = data.filter(entry => entry.value > 0);
+
+  const totalValue = filteredData.reduce((sum, entry) => sum + entry.value, 0);
 
   const renderLabel = ({ name, value }) => {
     const percentage = ((value / totalValue) * 100).toFixed(2);
@@ -30,7 +33,7 @@ const CustomPieChart = ({ data, detailedItems, setSelectedItem, setHoveredItem})
     <ResponsiveContainer width="100%" height={600}>
       <PieChart>
         <Pie
-          data={data}
+          data={filteredData}
           cx="50%"
           cy="50%"
           labelLine={false}
@@ -38,34 +41,13 @@ const CustomPieChart = ({ data, detailedItems, setSelectedItem, setHoveredItem})
           outerRadius={120}
           fill="#8884d8"
           dataKey="value"
-          onMouseEnter={handleMouseEnter} //
+          onMouseEnter={handleMouseEnter} // Handle mouse enter events on pie slices
           onClick={handleClick} // Handle clicks on pie slices
-          
         >
-          {data.map((entry, index) => (
+          {filteredData.map((entry, index) => (
             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
           ))}
         </Pie>
-        {/*<Tooltip content={({ active, payload }) => {
-          if (active && payload && payload.length) {
-            const item = payload[0];
-            const details = detailedItems[item.name];
-            const percentage = ((item.value / totalValue) * 100).toFixed(2);
-            return (
-              <div className="bg-white p-2 rounded shadow-md">
-                <h4 className="font-bold">{item.name} - {percentage}%</h4>
-                <ol className="list-decimal pl-5">
-                  {details.map((detail, index) => (
-                    <li key={detail.name} className="mb-1">
-                      <strong>{detail.name}</strong>
-                    </li>
-                  ))}
-                </ol>
-              </div>
-            );
-          }
-          return null;
-        }} />*/}
         <Legend />
       </PieChart>
     </ResponsiveContainer>

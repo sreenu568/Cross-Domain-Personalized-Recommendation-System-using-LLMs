@@ -7,7 +7,7 @@ function CellPhones({ onSelectedItemsChange }) {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedItems, setSelectedItems] = useState([]);
-  const itemsPerPage = 50;
+  const itemsPerPage = 36;
 
   useEffect(() => {
     Papa.parse('/final_raw_meta_Cell_Phones_and_Accessories.csv', {
@@ -62,17 +62,26 @@ function CellPhones({ onSelectedItemsChange }) {
         />
       </div>
 
-      <div className="flex space-x-4 p-4 overflow-x-auto">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 p-4">
         {currentItems.map((item, index) => (
           <div
             key={index}
-            className="relative h-[40vh] w-[200px] rounded-xl hover:scale-110 duration-300 hover:cursor-pointer bg-gray-200 flex-shrink-0"
+            className="relative rounded-xl bg-gray-25 hover:scale-105 duration-300 cursor-pointer"
             onDoubleClick={() => selectItem(item)}
           >
             <div
-              className="h-full w-full bg-center bg-cover rounded-xl"
+              className="h-[200px] w-25 bg-center bg-cover rounded-xl"
               style={{ backgroundImage: `url(${item.image_url})` }}
             >
+              {/* Fallback image if URL is not valid */}
+              <img
+                src={item.image_url}
+                alt={item.title}
+                className="hidden"
+                onError={(e) => {
+                  e.target.style.display = 'none'; // Hide broken images
+                }}
+              />
               <button
                 className="absolute bottom-4 right-4 bg-blue-500 text-white py-1 px-2 rounded-md"
                 onClick={() => selectItem(item)}
@@ -80,34 +89,38 @@ function CellPhones({ onSelectedItemsChange }) {
                 Add
               </button>
             </div>
-            {/*<div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-60 text-white p-2 rounded-b-xl">
-              <p className="text-sm font-bold text-center p-2 bg-gray-800 text-white rounded-md shadow-md">
-                {item.title}
-              </p>
-            </div>*/}
           </div>
         ))}
       </div>
 
       <Pagination
-        itemsPerPage={itemsPerPage}
-        totalItems={filteredItems.length}
+        booksPerPage={itemsPerPage}
+        totalBooks={filteredItems.length}
         paginate={paginate}
         currentPage={currentPage}
       />
 
       <div className="p-4">
         <h2 className="text-xl font-bold mb-4">Selected Cell Phones and Accessories</h2>
-        <div className="flex space-x-4 overflow-x-auto">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
           {selectedItems.map((item, index) => (
             <div
               key={index}
-              className="relative h-[40vh] w-[200px] rounded-xl hover:scale-110 duration-300 hover:cursor-pointer bg-gray-200 flex-shrink-0"
+              className="relative rounded-xl bg-gray-200 hover:scale-105 duration-300 cursor-pointer"
             >
               <div
-                className="h-full w-full bg-center bg-cover rounded-xl"
+                className="h-[200px] w-full bg-center bg-cover rounded-xl"
                 style={{ backgroundImage: `url(${item.image_url})` }}
               >
+                {/* Fallback image if URL is not valid */}
+                <img
+                  src={item.image_url}
+                  alt={item.title}
+                  className="hidden"
+                  onError={(e) => {
+                    e.target.style.display = 'none'; // Hide broken images
+                  }}
+                />
                 <button
                   className="absolute top-2 right-2 bg-red-500 text-white rounded-full text-xl font-bold"
                   onClick={() => removeItem(item)}
@@ -115,11 +128,6 @@ function CellPhones({ onSelectedItemsChange }) {
                   &times;
                 </button>
               </div>
-              {/*<div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-60 text-white p-2 rounded-b-xl">
-                <p className="text-sm font-bold text-center p-2 bg-gray-800 text-white rounded-md shadow-md">
-                  {item.title}
-                </p>
-              </div>*/}
             </div>
           ))}
         </div>

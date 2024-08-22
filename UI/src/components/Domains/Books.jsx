@@ -3,35 +3,35 @@ import Papa from 'papaparse';
 import Pagination from './Pagination';
 
 function Books({ onSelectedBooksChange }) {
-  const [books, setBooks] = useState([]);
+  const [items, setItems] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedBooks, setSelectedBooks] = useState([]);
-  const booksPerPage = 50;
+  const [selectedItems, setSelectedItems] = useState([]);
+  const itemsPerPage = 84;
 
   useEffect(() => {
     Papa.parse('/finalmetabooks.csv', {
       download: true,
       header: true,
       complete: (results) => {
-        setBooks(results.data);
+        setItems(results.data);
         console.log(results.data);
       },
     });
   }, []);
 
   useEffect(() => {
-    onSelectedBooksChange(selectedBooks);
-  }, [selectedBooks, onSelectedBooksChange]);
+    onSelectedBooksChange(selectedItems);
+  }, [selectedItems, onSelectedBooksChange]);
 
-  const indexOfLastBook = currentPage * booksPerPage;
-  const indexOfFirstBook = indexOfLastBook - booksPerPage;
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
 
-  const filteredBooks = books.filter(book =>
-    book.title && book.title.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredItems = items.filter(item =>
+    item.title && item.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const currentBooks = filteredBooks.slice(indexOfFirstBook, indexOfLastBook);
+  const currentItems = filteredItems.slice(indexOfFirstItem, indexOfLastItem);
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
@@ -40,20 +40,14 @@ function Books({ onSelectedBooksChange }) {
     setCurrentPage(1);
   };
 
-  const formatPriceToDollars = (price) => {
-    const euroToDollarRate = 1.13;
-    const priceInDollars = price * euroToDollarRate;
-    return `$${priceInDollars.toFixed(2)}`;
-  };
-
-  const selectBook = (book) => {
-    if (!selectedBooks.includes(book)) {
-      setSelectedBooks([...selectedBooks, book]);
+  const selectItem = (item) => {
+    if (!selectedItems.includes(item)) {
+      setSelectedItems([...selectedItems, item]);
     }
   };
 
-  const removeBook = (bookToRemove) => {
-    setSelectedBooks(selectedBooks.filter(book => book !== bookToRemove));
+  const removeItem = (itemToRemove) => {
+    setSelectedItems(selectedItems.filter(item => item !== itemToRemove));
   };
 
   return (
@@ -68,63 +62,63 @@ function Books({ onSelectedBooksChange }) {
         />
       </div>
 
-      <div className="flex space-x-4 p-4 overflow-x-auto">
-        {currentBooks.map((book, index) => (
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 p-4">
+        {currentItems.map((item, index) => (
           <div
             key={index}
-            className="relative h-[40vh] w-[200px] rounded-xl hover:scale-110 duration-300 hover:cursor-pointer bg-gray-200 flex-shrink-0"
-            onDoubleClick={() => selectBook(book)}
+            className="relative rounded-xl bg-gray-200 hover:scale-105 duration-300 cursor-pointer"
+            onDoubleClick={() => selectItem(item)}
           >
-            <div
-              className="h-full w-full bg-center bg-cover rounded-xl"
-              style={{ backgroundImage: `url(${book.image_url})` }}
-            >
+            <div className="h-48 w-full bg-center bg-cover rounded-xl overflow-hidden">
+              <img
+                src={item.image_url}
+                alt={item.title}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.target.src = 'fallback-image-url'; // Fallback image URL if needed
+                }}
+              />
               <button
                 className="absolute bottom-4 right-4 bg-blue-500 text-white py-1 px-2 rounded-md"
-                onClick={() => selectBook(book)}
+                onClick={() => selectItem(item)}
               >
                 Add
               </button>
-            </div>
-            <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-60 text-white p-2 rounded-b-xl">
-              <p className="text-sm font-bold text-center p-2 bg-gray-800 text-white rounded-md shadow-md">
-                Price: {formatPriceToDollars(parseFloat(book.price))}
-              </p>
             </div>
           </div>
         ))}
       </div>
 
       <Pagination
-        booksPerPage={booksPerPage}
-        totalBooks={filteredBooks.length}
+        booksPerPage={itemsPerPage}
+        totalBooks={filteredItems.length}
         paginate={paginate}
         currentPage={currentPage}
       />
 
       <div className="p-4">
-        <h2 className="text-xl font-bold mb-4">Selected Books for Purchase</h2>
-        <div className="flex space-x-4 overflow-x-auto">
-          {selectedBooks.map((book, index) => (
+        <h2 className="text-xl font-bold mb-4">Selected Books</h2>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+          {selectedItems.map((item, index) => (
             <div
               key={index}
-              className="relative h-[40vh] w-[200px] rounded-xl hover:scale-110 duration-300 hover:cursor-pointer bg-gray-200 flex-shrink-0"
+              className="relative rounded-xl bg-gray-50 hover:scale-105 duration-300 cursor-pointer"
             >
-              <div
-                className="h-full w-full bg-center bg-cover rounded-xl"
-                style={{ backgroundImage: `url(${book.image_url})` }}
-              >
+              <div className="h-48 w-50 bg-center bg-cover rounded-xl overflow-hidden">
+                <img
+                  src={item.image_url}
+                  alt={item.title}
+                  className="w-50 h-50 object-cover"
+                  onError={(e) => {
+                    e.target.src = 'fallback-image-url'; // Fallback image URL if needed
+                  }}
+                />
                 <button
                   className="absolute top-2 right-2 bg-red-500 text-white rounded-full text-xl font-bold"
-                  onClick={() => removeBook(book)}
+                  onClick={() => removeItem(item)}
                 >
                   &times;
                 </button>
-              </div>
-              <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-60 text-white p-2 rounded-b-xl">
-                <p className="text-sm font-bold text-center p-2 bg-gray-800 text-white rounded-md shadow-md">
-                  Price: {formatPriceToDollars(parseFloat(book.price))}
-                </p>
               </div>
             </div>
           ))}

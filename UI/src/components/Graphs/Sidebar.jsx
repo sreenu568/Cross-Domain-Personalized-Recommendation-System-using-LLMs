@@ -1,8 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from "react";
+import DetailsDisplay from "./DetailsDisplay";
 
 const Sidebar = ({ selectedItem, detailedItems }) => {
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [details1, setDetails1] = useState({});
   const details = detailedItems[selectedItem] || [];
+
+  useEffect(() => {
+    if (selectedProduct) {
+      // Handle JSON parsing
+      if (typeof selectedProduct.details === 'string') {
+        try {
+          // Sanitize JSON string if needed
+          const sanitizedDetails = selectedProduct.details.replace(/'/g, '"');
+          const parsedDetails = JSON.parse(sanitizedDetails);
+          setDetails1(parsedDetails);
+        } catch (e) {
+          console.error('Failed to parse details:', e);
+          setDetails1({});
+        }
+      } else {
+        // If already an object, set it directly
+        setDetails1(selectedProduct.details || {});
+      }
+    }
+  }, [selectedProduct]);
 
   const handleProductClick = (product) => {
     setSelectedProduct(product);
@@ -16,24 +38,23 @@ const Sidebar = ({ selectedItem, detailedItems }) => {
     <div className="bg-gray-100 p-4 rounded shadow-md w-full h-100">
       {selectedProduct ? (
         <div className="pl-5">
-          <button 
-            onClick={handleBackClick} 
+          <button
+            onClick={handleBackClick}
             className="text-blue-500 text-justify hover:underline mb-4"
           >
             Back
           </button>
-          <h2 className="text-xl text-justify font-bold mb-2">{selectedProduct.name}</h2>
+          <h2 className="text-xl text-justify font-bold mb-2">
+            {selectedProduct.name}
+          </h2>
           {selectedProduct.image_url && (
-            <img 
-              src={selectedProduct.image_url} 
-              alt={selectedProduct.name} 
+            <img
+              src={selectedProduct.image_url}
+              alt={selectedProduct.name}
               className="w-full h-40 mb-4 rounded object-cover"
             />
           )}
-          <p className="text-gray-700 text-justify">{selectedProduct.description}</p>
-          {selectedProduct.price && (
-            <p className="font-semibold mt-2">Price: ${selectedProduct.price}</p>
-          )}
+          <DetailsDisplay details={details1} />
         </div>
       ) : (
         <div className="text-justify">
@@ -44,8 +65,8 @@ const Sidebar = ({ selectedItem, detailedItems }) => {
             <ol className="list-decimal pl-5 text-left">
               {details.map((detail, index) => (
                 <li key={index} className="mb-2">
-                  <button 
-                    onClick={() => handleProductClick(detail)} 
+                  <button
+                    onClick={() => handleProductClick(detail)}
                     className="text-blue-500 text-justify hover:underline"
                   >
                     {detail.name}

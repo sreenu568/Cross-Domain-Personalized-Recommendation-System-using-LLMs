@@ -2,10 +2,10 @@ import axios from "axios";
 import "tailwindcss/tailwind.css";
 import React, { useState, useEffect } from "react";
 import Papa from "papaparse";
-import WordCloudComponent from "./WordCloudComponent";
-import CustomBarChart from "./CustomBarChart";
-import CustomPieChart from "./CustomPieChart";
-import Sidebar from "./Sidebar";
+import WordCloudComponent from "../Graphs/WordCloudComponent";
+import CustomBarChart from "../Graphs/CustomBarChart";
+import CustomPieChart from "../Graphs/CustomPieChart";
+import Sidebar from "../Graphs/Sidebar";
 import Ratingplot from "./Ratingplot";
 
 const RecommendationDashboard = ({
