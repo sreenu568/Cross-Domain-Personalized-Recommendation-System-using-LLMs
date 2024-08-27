@@ -17,10 +17,10 @@ const Sidebar1 = ({ hoveredData }) => {
       {/*<h3 className="text-lg font-bold mb-2">Hovered Data</h3>*/}
       <p className="mb-2 text-bold">{hoveredData.date ? `Date: ${hoveredData.date}` : `Rating: ${hoveredData.rating}`}</p>
       <p className="mb-2">{hoveredData.count ? `No. of users: ${hoveredData.count}` : ''}</p>
-      <p className="mb-2">{hoveredData.review ? `Review: ${hoveredData.review}` : ''}</p>
+      <p className="mb-2 text-justify">{hoveredData.review ? `Review: ${hoveredData.review}` : ''}</p>
       {reviewsToShow.length > 0 && (
         <div>
-          <ul className="list-disc list-inside">
+          <ul className="list-disc list-inside text-justify">
             {reviewsToShow.map((review, index) => (
               <li key={index}>{review}</li>
             ))}

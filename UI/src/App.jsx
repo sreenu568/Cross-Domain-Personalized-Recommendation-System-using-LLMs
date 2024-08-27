@@ -11,8 +11,10 @@ import Books from './components/Domains/Books';
 import Personalize from './components/Graphs/Personalize';
 import RecommendationDashboard2 from './components/Recommendations/RecommendationDashboard2';
 import RecommendationDashboard4 from './components/Recommendations/RecommendedDashboard4';
+import RecommendationDashboard3 from './components/Recommendations/RecommendationDashboard3';
 import Mainsidebar from './components/NavBar/Mainsidebar';
 import { RecommendationProvider } from './components/Recommendations/RecommendationsContext';
+import { TwitterProvider } from './components/Twitter/TwitterContext';
 
 function App() {
   const [selectedMovies, setSelectedMovies] = useState([]);
@@ -31,6 +33,7 @@ function App() {
 
   return (
     <RecommendationProvider>
+    <TwitterProvider>
       <BrowserRouter>
         <div className="flex flex-col h-screen">
           <Navbar selectedDomain={selectedDomain} />
@@ -100,6 +103,7 @@ function App() {
           </div>
         </div>
       </BrowserRouter>
+      </TwitterProvider>
     </RecommendationProvider>
   );
 }

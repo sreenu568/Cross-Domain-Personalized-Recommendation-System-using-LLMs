@@ -1,32 +1,21 @@
-import React, { useState } from 'react';
-import axios from 'axios';
-import Logo from '../../twitter-logo.png'; // Import your Twitter logo or any other image
-import 'tailwindcss/tailwind.css'; // Ensure Tailwind CSS is properly imported
+import React from 'react';
+import Logo from '../../twitter-logo.png';
+import 'tailwindcss/tailwind.css';
 import WordCloudComponent from '../Graphs/WordCloudComponent';
-import { Timeline, Tweet, Follow, Share } from 'react-twitter-widgets';
+import { Timeline, Tweet } from 'react-twitter-widgets';
+import { useTwitter } from './TwitterContext';
 
 const Dashboard1 = ({ setSelectedTweets, setUsername }) => {
-  const [inputText, setInputText] = useState('');
-  const [tweets, setTweets] = useState([]);
-  const [error, setError] = useState(null);
+  const { inputText, setInputText, tweets, error, fetchTweets } = useTwitter();
 
   const handleInputChange = (e) => {
     setInputText(e.target.value);
   };
 
-  const fetchTweets = async () => {
-    try {
-      const apiUrl = `https://persona1-14c3597db9ce.herokuapp.com/api/twitter/${inputText}`;
-      const response = await axios.get(apiUrl);
-      setUsername(inputText);
-      setTweets(response.data);
-      setSelectedTweets(response.data); // Pass tweets to the parent component
-      setError(null);
-    } catch (error) {
-      setError('Error fetching tweets. Please try again later.');
-      setTweets([]); // Clear tweets on error
-      console.error('Error fetching tweets:', error);
-    }
+  const handleFetchTweets = () => {
+    fetchTweets();
+    setUsername(inputText);
+    setSelectedTweets(tweets);
   };
 
   return (
@@ -48,7 +37,7 @@ const Dashboard1 = ({ setSelectedTweets, setUsername }) => {
             />
             <button
               className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-md transition duration-300"
-              onClick={fetchTweets}
+              onClick={handleFetchTweets}
             >
               Fetch Tweets
             </button>
@@ -62,7 +51,6 @@ const Dashboard1 = ({ setSelectedTweets, setUsername }) => {
 
           {!error && inputText && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
-              {/* Display Twitter Timeline Widget */}
               <div className={`bg-white shadow-md rounded-lg p-4 ${tweets.length === 0 ? 'hidden' : ''}`}>
                 <h2 className="text-xl font-semibold mb-2">Twitter Timeline</h2>
                 <Timeline
@@ -71,31 +59,11 @@ const Dashboard1 = ({ setSelectedTweets, setUsername }) => {
                 />
               </div>
 
-              {/* Display Word Cloud */}
               <div className={`bg-white shadow-md rounded-lg p-4 ${tweets.length === 0 ? 'hidden' : ''}`}>
                 <h2 className="text-xl font-semibold mb-2">Word Cloud</h2>
                 <WordCloudComponent tweets={tweets} />
               </div>
 
-              {/* Display Follow Button 
-              <div className={`bg-white shadow-md rounded-lg p-4 ${tweets.length === 0 ? 'hidden' : ''}`}>
-                <h2 className="text-xl font-semibold mb-2">Follow on Twitter</h2>
-                <Follow
-                  screenName={inputText || 'twitter'}
-                  options={{ showCount: false }}
-                />
-              </div>
-
-              {/* Display Share Button 
-              <div className={`bg-white shadow-md rounded-lg p-4 ${tweets.length === 0 ? 'hidden' : ''}`}>
-                <h2 className="text-xl font-semibold mb-2">Share on Twitter</h2>
-                <Share
-                  url="https://example.com"
-                  options={{ text: 'Check out this awesome site!' }}
-                />
-              </div>*/}
-
-              {/* Display Tweets */}
               <div className={`bg-white shadow-md rounded-lg p-4 ${tweets.length > 0 ? 'col-span-1 md:col-span-2 lg:col-span-2' : 'hidden'}`}>
                 <h2 className="text-xl font-semibold mb-2">Recent Tweets</h2>
                 {tweets.length > 0 ? (
@@ -109,7 +77,6 @@ const Dashboard1 = ({ setSelectedTweets, setUsername }) => {
                 )}
               </div>
 
-              {/* Placeholder when no tweets are available */}
               {tweets.length === 0 && (
                 <div className="bg-white shadow-md rounded-lg p-4 col-span-1 md:col-span-2 lg:col-span-2">
                   <h2 className="text-xl font-semibold mb-2">No Tweets Available</h2>

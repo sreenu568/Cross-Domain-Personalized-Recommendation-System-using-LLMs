@@ -2,11 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Papa from 'papaparse';
 import Ratingplot from './Ratingplot';
-import { useRecommendations } from './RecommendationsContext'; //
-
-
-// Placeholder image URL
-
+import { useRecommendations } from './RecommendationsContext';
 
 const placeholderImage = "https://via.placeholder.com/150";
 
@@ -27,7 +23,7 @@ const RecommendationDashboard2 = ({
   phones,
   username,
   onRecommendedProducts,
-  recommendedProducts = {}, // Initialize as an empty object
+  recommendedProducts = {},
 }) => {
   const {
     recommendations,
@@ -40,13 +36,13 @@ const RecommendationDashboard2 = ({
     setShowExplanation,
     showProductName,
     setShowProductName,
-  } = useRecommendations(); // Use the context
+  } = useRecommendations();
 
   const [error, setError] = useState(null);
   const [csvData, setCsvData] = useState([]);
 
   useEffect(() => {
-    loadCsvData("/finalmetabooks.csv"); // Replace with your CSV file path
+    loadCsvData("/finalmetabooks.csv");
   }, []);
 
   const loadCsvData = (filePath) => {
@@ -54,7 +50,7 @@ const RecommendationDashboard2 = ({
       download: true,
       header: true,
       complete: (results) => {
-        console.log("CSV Data:", results.data); // Debugging: Log CSV Data
+        console.log("CSV Data:", results.data);
         setCsvData(results.data);
       },
       error: (error) => {
@@ -90,7 +86,7 @@ const RecommendationDashboard2 = ({
         "http://127.0.0.1:5000/getRecomByDomainIndomain",
         {
           selection: {
-            [domain]: selection[domain] || [], // Include only the selected domain with its data
+            [domain]: selection[domain] || [],
           },
           personality: "Based on the provided Twitter posts, the user appears",
         }
@@ -148,6 +144,14 @@ const RecommendationDashboard2 = ({
       ...newRecommendations,
     }));
 
+    // Set explanation to be shown by default for top best product
+    if (newRecommendations[selectedDomain]?.top_best?.["product 1"]) {
+      setShowExplanation((prevState) => ({
+        ...prevState,
+        top_best: true,
+      }));
+    }
+
     setLoading((prev) => ({ ...prev, [selectedDomain]: false }));
   };
 
@@ -160,8 +164,11 @@ const RecommendationDashboard2 = ({
     setSelectedDomain(event.target.value);
   };
 
-  const handleExplanationToggle = () => {
-    setShowExplanation(!showExplanation);
+  const handleExplanationToggle = (productName) => {
+    setShowExplanation((prevState) => ({
+      ...prevState,
+      [productName]: !prevState[productName],
+    }));
   };
 
   const handleProductDoubleClick = (productName) => {
@@ -193,7 +200,7 @@ const RecommendationDashboard2 = ({
       <div className="container mx-auto pt-4">
         <form onSubmit={handleSubmit} className="mb-4">
           <button type="submit" className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
-            Explore Personalize Recommendations
+            Explore Personalized Recommendations
           </button>
         </form>
         {Object.keys(loading).some(key => loading[key]) && <p>Loading...</p>}
@@ -221,6 +228,17 @@ const RecommendationDashboard2 = ({
                     {showProductName[rec["product name"]] && (
                       <p className="font-semibold text-justify text-blue-700">{rec["product name"]}</p>
                     )}
+                    <button
+                      className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 mt-4"
+                      onClick={() => handleExplanationToggle(rec["product name"])}
+                    >
+                      {showExplanation[rec["product name"]] ? "Hide Explanation" : "Show Explanation"}
+                    </button>
+                    {showExplanation[rec["product name"]] && (
+                      <p className="mt-2 text-gray-700 text-justify">
+                        {rec["reason"]}
+                      </p>
+                    )}
                   </div>
                 ))}
               </div>
@@ -241,24 +259,21 @@ const RecommendationDashboard2 = ({
                   </p>
                   <button
                     className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 mt-4"
-                    onClick={handleExplanationToggle}
+                    onClick={() => handleExplanationToggle("top_best")}
                   >
-                    {showExplanation ? "Hide Explanation" : "Show Explanation"}
+                    {showExplanation["top_best"] ? "Hide Explanation" : "Show Explanation"}
                   </button>
-                  {showExplanation && (
+                  {showExplanation["top_best"] && (
                     <p className="mt-2 text-gray-700 text-justify">
-                      {recommendedProducts[selectedDomain].top_best["product 1"]["product explanation"]}
+                      {recommendedProducts[selectedDomain].top_best["product 1"]["reason"]}
                     </p>
                   )}
                 </div>
               </div>
             </div>
           )}
+          <Ratingplot bookTitle={"Watercolor with Me in the Jungle"} domain={selectedDomain} />
         </div>
-      )}
-
-      {recommendedProducts[selectedDomain]?.top_best && (
-        <Ratingplot bookTitle={"Watercolor with Me in the Jungle"} domain={selectedDomain}/>
       )}
     </div>
   );

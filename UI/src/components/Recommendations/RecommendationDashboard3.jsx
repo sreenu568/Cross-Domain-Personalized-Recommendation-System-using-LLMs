@@ -1,10 +1,13 @@
-import axios from "axios";
-import "tailwindcss/tailwind.css";
-import React, { useState, useEffect } from "react";
-import Papa from "papaparse";
-import Ratingplot from "./Ratingplot";
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import Papa from 'papaparse';
+import Ratingplot from './Ratingplot';
+import { useRecommendations } from './RecommendationsContext'; //
+
 
 // Placeholder image URL
+
+
 const placeholderImage = "https://via.placeholder.com/150";
 
 const domainNameMapping = {
@@ -23,15 +26,24 @@ const RecommendationDashboard3 = ({
   fashion,
   phones,
   username,
+  onRecommendedProducts,
+  recommendedProducts = {}, // Initialize as an empty object
 }) => {
-  const [recommendations, setRecommendations] = useState({});
-  const [loading, setLoading] = useState(false);
+  const {
+    recommendations,
+    setRecommendations,
+    selectedDomain,
+    setSelectedDomain,
+    loading,
+    setLoading,
+    showExplanation,
+    setShowExplanation,
+    showProductName,
+    setShowProductName,
+  } = useRecommendations(); // Use the context
+
   const [error, setError] = useState(null);
   const [csvData, setCsvData] = useState([]);
-  const [selectedDomain, setSelectedDomain] = useState('');
-  const [recommendationType, setRecommendationType] = useState('in-domain'); // New state for recommendation type
-  const [showExplanation, setShowExplanation] = useState(false);
-  const [showProductName, setShowProductName] = useState({}); // Object to store visibility state for each product
 
   useEffect(() => {
     loadCsvData("/finalmetabooks.csv"); // Replace with your CSV file path
@@ -60,7 +72,11 @@ const RecommendationDashboard3 = ({
     }
   };
 
-  const fetchRecommendations = async (domain, type) => {
+  useEffect(() => {
+    onRecommendedProducts(recommendations);
+  }, [recommendations, onRecommendedProducts]);
+
+  const fetchRecommendationsForDomain = async (domain) => {
     const selection = {
       Movies_and_TV: selectedMovies,
       Books: selectedBooks,
@@ -70,23 +86,22 @@ const RecommendationDashboard3 = ({
     };
 
     try {
-      const apiEndpoint =
-        type === 'in-domain'
-          ? "http://127.0.0.1:5000/getRecomByDomainIndomain"
-          : "http://127.0.0.1:5000/getRecomByDomainCrossdomain";
-
-      const response = await axios.post(apiEndpoint, {
-        selection: {
-          [domain]: selection[domain] || [], // Include only the selected domain with its data
-        },
-        personality: "Based on the provided Twitter posts, the user appears",
-      });
-      console.log("Recommended data:", response.data);
-      return response.data;
+      const response = await axios.post(
+        "http://127.0.0.1:5000/getRecomByDomainCrossdomain",
+        {
+          selection: {
+            [domain]: selection[domain] || [], // Include only the selected domain with its data
+          },
+          "domain": domain,
+          personality: "Based on the provided Twitter posts, the user appears",
+        }
+      );
+      console.log(`Recommended data for ${domain}:`, response.data);
+      return { domain, data: response.data };
     } catch (err) {
-      console.error(`Error fetching recommendations for ${domain} (${type}):`, err);
-      setError(`Error fetching recommendations for ${domain} (${type})`);
-      return null;
+      console.error(`Error fetching recommendations for ${domain}:`, err);
+      setError(`Error fetching recommendations for ${domain}`);
+      return { domain, data: null };
     }
   };
 
@@ -107,30 +122,34 @@ const RecommendationDashboard3 = ({
       return;
     }
 
-    setLoading(true);
+    setLoading((prev) => ({ ...prev, [selectedDomain]: true }));
     setError(null);
 
-    const data = await fetchRecommendations(selectedDomain, recommendationType);
+    const domainsToFetch = Object.keys(domainNameMapping);
+    const results = await Promise.all(
+      domainsToFetch.map((domain) => fetchRecommendationsForDomain(domain))
+    );
 
-    if (data) {
-      // Parse the JSON strings into objects
-      const inDomainData = data["in-domain"] ? data["in-domain"][selectedDomain] || {} : {};
-      const crossDomainData = data["cross-domain"] ? data["cross-domain"][selectedDomain] || {} : {};
-      setRecommendations({
-        [selectedDomain]: {
-          top_5: parseJsonString(
-            recommendationType === 'in-domain' ? inDomainData.top_5 || '{}' : crossDomainData.top_5 || '{}'
-          ),
-          top_best: parseJsonString(
-            recommendationType === 'in-domain' ? inDomainData.top_best || '{}' : crossDomainData.top_best || '{}'
-          ),
-        },
-      });
-    } else {
-      setRecommendations({});
-    }
+    const newRecommendations = results.reduce((acc, result) => {
+      const { domain, data } = result;
+      if (data) {
+        const crossDomainData = data["cross-domain"][domain] || {};
+        acc[domain] = {
+          top_5: parseJsonString(crossDomainData.top_5 || '{}'),
+          top_best: parseJsonString(crossDomainData.top_best || '{}'),
+        };
+      } else {
+        acc[domain] = {};
+      }
+      return acc;
+    }, {});
 
-    setLoading(false);
+    setRecommendations((prevRecommendations) => ({
+      ...prevRecommendations,
+      ...newRecommendations,
+    }));
+
+    setLoading((prev) => ({ ...prev, [selectedDomain]: false }));
   };
 
   const handleSubmit = (e) => {
@@ -140,10 +159,6 @@ const RecommendationDashboard3 = ({
 
   const handleDomainChange = (event) => {
     setSelectedDomain(event.target.value);
-  };
-
-  const handleRecommendationTypeChange = (event) => {
-    setRecommendationType(event.target.value);
   };
 
   const handleExplanationToggle = () => {
@@ -176,37 +191,24 @@ const RecommendationDashboard3 = ({
         ))}
       </select>
 
-      <label htmlFor="type-select" className="block text-lg font-semibold mt-4 mb-2">
-        Select Recommendation Type
-      </label>
-      <select
-        id="type-select"
-        value={recommendationType}
-        onChange={handleRecommendationTypeChange}
-        className="border p-2 rounded"
-      >
-        <option value="in-domain">In-Domain</option>
-        <option value="cross-domain">Cross-Domain</option>
-      </select>
-
-      <div className="container mx-auto p-4">
+      <div className="container mx-auto pt-4">
         <form onSubmit={handleSubmit} className="mb-4">
           <button type="submit" className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
             Explore Personalize Recommendations
           </button>
         </form>
-        {loading && <p>Loading...</p>}
+        {Object.keys(loading).some(key => loading[key]) && <p>Loading...</p>}
         {error && <p>{error}</p>}
       </div>
 
-      {selectedDomain && recommendations[selectedDomain] && (
+      {selectedDomain && recommendedProducts[selectedDomain] && (
         <div className="mt-8">
           <h2 className="text-2xl font-bold mb-4">Recommendations for {domainNameMapping[selectedDomain]}</h2>
-          {recommendations[selectedDomain].top_5 && (
+          {recommendedProducts[selectedDomain]?.top_5 && (
             <div className="mb-4">
               <h3 className="text-lg font-semibold mb-2">Top 5 Recommendations</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {Object.values(recommendations[selectedDomain].top_5).map((rec, index) => (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                {Object.values(recommendedProducts[selectedDomain].top_5).map((rec, index) => (
                   <div
                     key={index}
                     className="border p-4 rounded flex flex-col items-center"
@@ -225,38 +227,39 @@ const RecommendationDashboard3 = ({
               </div>
             </div>
           )}
-          {recommendations[selectedDomain].top_best && (
+          {recommendedProducts[selectedDomain]?.top_best && (
             <div className="mb-4">
               <h3 className="text-lg font-semibold mb-2">Top Best Recommendation</h3>
               <div className="border p-4 rounded flex items-center">
                 <img
-                  src={recommendations[selectedDomain].top_best["product 1"]["image link"] || placeholderImage}
-                  alt={recommendations[selectedDomain].top_best["product 1"]["product name"]}
+                  src={recommendedProducts[selectedDomain].top_best["product 1"]["image link"] || placeholderImage}
+                  alt={recommendedProducts[selectedDomain].top_best["product 1"]["product name"]}
                   className="w-80 h-70 object-cover mr-4"
                 />
                 <div className="flex-1">
                   <p className="font-semibold text-justify text-blue-700">
-                    {recommendations[selectedDomain].top_best["product 1"]["product name"]}
+                    {recommendedProducts[selectedDomain].top_best["product 1"]["product name"]}
                   </p>
                   <button
-                    className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 mb-2"
+                    className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 mt-4"
                     onClick={handleExplanationToggle}
                   >
                     {showExplanation ? "Hide Explanation" : "Show Explanation"}
                   </button>
                   {showExplanation && (
-                    <p className="font-light text-justify">
-                      <span className="font-semibold">Explanation:</span> {recommendations[selectedDomain].top_best["product 1"].reason}
+                    <p className="mt-2 text-gray-700 text-justify">
+                      {recommendedProducts[selectedDomain].top_best["product 1"]["product explanation"]}
                     </p>
                   )}
                 </div>
               </div>
             </div>
           )}
-          {recommendations[selectedDomain].top_best && (
-            <Ratingplot bookTitle={"Watercolor with Me in the Jungle"} domain={selectedDomain}/>
-          )}
         </div>
+      )}
+
+      {recommendedProducts[selectedDomain]?.top_best && (
+        <Ratingplot bookTitle={"Watercolor with Me in the Jungle"} domain={selectedDomain}/>
       )}
     </div>
   );
