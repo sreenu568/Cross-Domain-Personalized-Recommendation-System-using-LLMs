@@ -26,7 +26,7 @@ const WordCloudGraph = ({ sentences, name }) => {
   const [hoveredWord, setHoveredWord] = useState(null); // State to manage hover status
 
   useEffect(() => {
-    console.log("Selected Word Sentences Updated:", selectedWordSentences);
+    //console.log("Selected Word Sentences Updated:", selectedWordSentences);
   }, [selectedWordSentences]);
   
   const words = useMemo(() => {
@@ -72,7 +72,7 @@ const WordCloudGraph = ({ sentences, name }) => {
       });
       return acc;
     }, {});
-    console.log("Word to Sentences Map:", result); // Check if this logs
+    //console.log("Word to Sentences Map:", result); // Check if this logs
     return result
   }, [sentences]);
 

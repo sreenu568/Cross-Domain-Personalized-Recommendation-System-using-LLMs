@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Logo from '../../twitter-logo.png';
 import 'tailwindcss/tailwind.css';
 import WordCloudComponent from '../Graphs/WordCloudComponent';
@@ -8,6 +8,11 @@ import { useTwitter } from './TwitterContext';
 const Dashboard1 = ({ setSelectedTweets, setUsername }) => {
   const { inputText, setInputText, tweets, error, fetchTweets } = useTwitter();
 
+  // Update selected tweets when tweets state changes
+  useEffect(() => {
+    setSelectedTweets(tweets);
+  }, [tweets, setSelectedTweets]);
+
   const handleInputChange = (e) => {
     setInputText(e.target.value);
   };
@@ -15,7 +20,6 @@ const Dashboard1 = ({ setSelectedTweets, setUsername }) => {
   const handleFetchTweets = () => {
     fetchTweets();
     setUsername(inputText);
-    setSelectedTweets(tweets);
   };
 
   return (

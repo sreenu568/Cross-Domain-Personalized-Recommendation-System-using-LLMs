@@ -95,7 +95,7 @@ const Personalize = ({
     })),
     Tweets: tweets.map((item) => ({ name: item.text, price: null })),
   };
-
+  console.log("tweets:",tweets)
   const barChartData = [
     { category: "Beauty", count: beauty.length },
     { category: "Fashion", count: fashion.length },

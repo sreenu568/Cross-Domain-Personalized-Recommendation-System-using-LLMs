@@ -14,7 +14,7 @@ function AmazonFashion({ onSelectedItemsChange }) {
       header: true,
       complete: (results) => {
         setItems(results.data);
-        console.log(results.data);
+        //console.log(results.data);
       },
     });
   }, []);
