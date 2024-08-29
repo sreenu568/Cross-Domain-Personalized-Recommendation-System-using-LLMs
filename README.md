@@ -51,7 +51,8 @@ Determine what a user is likely to buy on Amazon based on all available data abo
           (ii). Run the flask api program by using cmd: python api.py.
           (iii). After running the program successfully, then it will give url.
           (iv). Copy the URL.
-      7. Open RecommendationDashboard2.jsx file in the path of /src/components/Recommendations and paste the url in the .jsx file at the axis.post("https://localhost:5000/getRecomByDomainIndomain"). In the local host url append "/getRecomByDomainIndomain" and place this one.
+      7. Open RecommendationDashboard2.jsx (in-domain) file in the path of /src/components/Recommendations and paste the url in the .jsx file at the axis.post("https://localhost:5000/getRecomByDomainIndomain"). In the local host url append "/getRecomByDomainIndomain" and place this one.
+      8. Open RecommendationDashboard3.jsx (Cross-domain) file in the path of /src/components/Recommendations and paste the url in the .jsx file at the axis.post("https://localhost:5000/getRecomByDomainCrossdomain"). In the local host url append "/getRecomByDomainCrossdomain" and place this one.
       8. Then run cmd: **npm run dev**
 
   **Deployed for Book domain**:
