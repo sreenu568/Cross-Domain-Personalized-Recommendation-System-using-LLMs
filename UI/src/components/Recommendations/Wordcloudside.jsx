@@ -9,8 +9,8 @@ const Wordcloudside = ({ sentences, types }) => {
   // Filter unique sentences, clean them, and take the top two
   const uniqueSentences = Array.from(new Set(sentences.map(cleanSentence))).slice(0, 2);
 
-  console.log("Received Sentences:", uniqueSentences); // Check if this logs
-  console.log("Received Type:", types);
+  //console.log("Received Sentences:", uniqueSentences); // Check if this logs
+  //console.log("Received Type:", types);
 
   // Determine the heading based on the type
   const heading = types === "reviews" ? "Product Reviews" : "Product Features";

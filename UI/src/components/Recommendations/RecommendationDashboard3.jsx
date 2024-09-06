@@ -5,6 +5,7 @@ import axios from "axios";
 import Papa from "papaparse";
 import Ratingplot from "./Ratingplot";
 import { useRecommendations } from "./RecommendationsContext"; //
+import NetworkGraph from "../Graphs/NetworkGraph";
 
 // Placeholder image URL
 
@@ -65,19 +66,18 @@ const RecommendationDashboard3 = ({
   };
 
   const parseJsonString = (jsonString) => {
-
     const cleanedString = jsonString
-    .replace(/```json\s*/g, '') // Remove ```json marker
-    .replace(/```/g, '') // Remove ending ```
-    .replace(/^[^{]*{/, '{') // Remove any text before the first opening brace
-    .replace(/}[^}]*$/, '}') // Remove any text after the last closing brace
-    .trim(); // Trim any leading or trailing whitespace
-    console.log("cleaned string",cleanedString)
+      .replace(/```json\s*/g, "") // Remove ```json marker
+      .replace(/```/g, "") // Remove ending ```
+      .replace(/^[^{]*{/, "{") // Remove any text before the first opening brace
+      .replace(/}[^}]*$/, "}") // Remove any text after the last closing brace
+      .trim(); // Trim any leading or trailing whitespace
+    console.log("cleaned string", cleanedString);
     try {
-     // console.log("json string",jsonString)
+      // console.log("json string",jsonString)
       return JSON.parse(cleanedString);
     } catch (error) {
-      console.log("json string",cleanedString)
+      console.log("json string", cleanedString);
       console.error("Error parsing JSON string:", error);
       return {};
     }
@@ -112,7 +112,7 @@ const RecommendationDashboard3 = ({
           personality: "Based on the provided Twitter posts, the user appears",
         }
       );
-      const reque={
+      const reque = {
         selection: {
           //[domain]: selection[domain] || [], // Include only the selected domain with its data
           Movies_and_TV: selectedMovies || [],
@@ -123,8 +123,8 @@ const RecommendationDashboard3 = ({
         },
         domain: domain,
         personality: "Based on the provided Twitter posts, the user appears",
-      }
-      console.log("request object",reque)
+      };
+      console.log("request object", reque);
       console.log(`Recommended data for ${domain}:`, response.data);
       return { domain, data: response.data };
     } catch (err) {
@@ -271,41 +271,41 @@ const RecommendationDashboard3 = ({
                         alt={rec["product name"]}
                         className="w-full h-48 object-cover mb-2"
                       />
-                   <div className="flex flex-col items-center justify-between h-20">
-                      {rec["product name"].length > 30 ? (
-                        <p className="font-semibold text-justify text-blue-700">
-                          {truncatedNames[rec["product name"]] ? (
-                            <>
-                              {rec["product name"]}
-                              <button
-                                className="text-slate-500 ml-2"
-                                onClick={() =>
-                                  toggleTruncatedName(rec["product name"])
-                                }
-                              >
-                                Show Less
-                              </button>
-                            </>
-                          ) : (
-                            <>
-                              {rec["product name"].slice(0, 30)}...
-                              <button
-                                className="text-slate-500  ml-1 mb-4"
-                                onClick={() =>
-                                  toggleTruncatedName(rec["product name"])
-                                }
-                              >
-                                Show More
-                              </button>
-                            </>
-                          )}
-                        </p>
-                      ) : (
-                        <p className="font-semibold text-justify text-blue-700">
-                          {rec["product name"]}
-                        </p>
-                      )}
-                    </div>
+                      <div className="flex flex-col items-center justify-between h-20">
+                        {rec["product name"].length > 30 ? (
+                          <p className="font-semibold text-justify text-blue-700">
+                            {truncatedNames[rec["product name"]] ? (
+                              <>
+                                {rec["product name"]}
+                                <button
+                                  className="text-slate-500 ml-2"
+                                  onClick={() =>
+                                    toggleTruncatedName(rec["product name"])
+                                  }
+                                >
+                                  Show Less
+                                </button>
+                              </>
+                            ) : (
+                              <>
+                                {rec["product name"].slice(0, 30)}...
+                                <button
+                                  className="text-slate-500  ml-1 mb-4"
+                                  onClick={() =>
+                                    toggleTruncatedName(rec["product name"])
+                                  }
+                                >
+                                  Show More
+                                </button>
+                              </>
+                            )}
+                          </p>
+                        ) : (
+                          <p className="font-semibold text-justify text-blue-700">
+                            {rec["product name"]}
+                          </p>
+                        )}
+                      </div>
                       <button
                         className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 mt-4"
                         onClick={() =>
@@ -382,6 +382,11 @@ const RecommendationDashboard3 = ({
           domain={selectedDomain}
         />
       )}
+
+      <div className="w-full md:w-3/4 lg:w-1/2">{<NetworkGraph  Books={recommendedProducts["Books"]?.top_5}  Beauty={recommendedProducts["All_Beauty"]?.top_5} Fashion={recommendedProducts["Amazon_Fashion"]?.top_5} Phones={recommendedProducts["Cell_Phones_and_Accessories"]?.top_5}  Movies={recommendedProducts["Movies_and_TV"]?.top_5}
+      Booksb={recommendedProducts["Books"]?.top_best}  Beautyb={recommendedProducts["All_Beauty"]?.top_best} Fashionb={recommendedProducts["Amazon_Fashion"]?.top_best} Phonesb={recommendedProducts["Cell_Phones_and_Accessories"]?.top_best}  Moviesb={recommendedProducts["Movies_and_TV"]?.top_best}
+
+ />}</div>
     </div>
   );
 };

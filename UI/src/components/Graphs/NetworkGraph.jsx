@@ -1,77 +1,264 @@
-// NetworkGraph.jsx
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { Graph } from "react-d3-graph";
+import * as d3 from "d3";
 
-// Sample data for the graph
-const data = {
-  nodes: [
-    { id: "Node 1", label: "Node 1" },
-    { id: "Node 2", label: "Node 2" },
-    { id: "Node 3", label: "Node 3" },
-  ],
-  links: [
-    { source: "Node 1", target: "Node 2", label: "Edge 1-2" },
-    { source: "Node 2", target: "Node 3", label: "Edge 2-3" },
-  ],
-};
-
-// Graph configuration
-const myConfig = {
-  nodeHighlightBehavior: true,
-  linkHighlightBehavior: true,
-  directed: true,
-  node: {
-    color: "lightblue",
-    size: 400,
-    highlightStrokeColor: "blue",
-  },
-  link: {
-    highlightColor: "red",
-    renderLabel: true,
-  },
-};
-
-// NetworkGraph Component
-const NetworkGraph = () => {
-  const [hoveredNode, setHoveredNode] = useState(null);
+const NetworkGraph = ({
+  Books = {},
+  Beauty = {},
+  Fashion = {},
+  Phones = {},
+  Movies = {},
+  Booksb = {},
+  Beautyb = {},
+  Fashionb = {},
+  Phonesb = {},
+  Moviesb = {},
+}) => {
   const [hoveredLink, setHoveredLink] = useState(null);
+  const [selectedNode, setSelectedNode] = useState(null);
+  const [graphInstance, setGraphInstance] = useState(null);
 
-  // Handle node hover event
-  const onMouseOverNode = (nodeId) => {
-    setHoveredNode(nodeId);
+  const aggregateData = () => {
+    const domainData = { Books, Beauty, Fashion, Phones, Movies };
+    const bestProductData = { Booksb, Beautyb, Fashionb, Phonesb, Moviesb };
+    const graphData = {
+      nodes: [
+        {
+          id: "User",
+          color: "#4A90E2", // Blue for User node
+          image: "https://via.placeholder.com/60?text=User",
+          symbolType: "diamond",
+        },
+      ],
+      links: [],
+    };
+
+    const domainNodes = new Set();
+
+    Object.keys(domainData).forEach((domain) => {
+      const domainProducts = domainData[domain];
+      const bestProduct = bestProductData[`${domain}b`];
+      console.log("best product",bestProduct);
+      if (domainProducts) {
+        if (!domainNodes.has(domain)) {
+          graphData.nodes.push({
+            id: domain,
+            color: "#2ECC71", // Green for Domain nodes
+            group: "Domain",
+            image: `https://via.placeholder.com/60?text=${domain}`,
+            symbolType: "square",
+          });
+          domainNodes.add(domain);
+
+          graphData.links.push({
+            source: "User",
+            target: domain,
+          });
+        }
+
+        Object.keys(domainProducts).forEach((key) => {
+          const product = domainProducts[key];
+          if (product && product["product name"]) {
+            const isBestProduct =
+              bestProduct &&
+              bestProduct["product 1"]["product name"] === product["product name"];
+              console.log("product name",bestProduct["product 1"]["product name"]);
+              console.log("product name1",product["product name"]);
+            // Validate that product has an ID before adding it to nodes
+            if (product["product name"]) {
+              graphData.nodes.push({
+                id: product["product name"],
+                color: isBestProduct ? "#E74C3C" : "#F39C12", // Red for best product
+                explanation: product["reason"],
+                image: product["image link"],
+                symbolType: isBestProduct ? "star" : "circle",
+              });
+
+              // Validate that the domain and product name are not undefined
+              if (domain && product["product name"]) {
+                graphData.links.push({
+                  source: domain,
+                  target: product["product name"],
+                });
+              }
+            }
+          }
+        });
+
+        if (
+          bestProduct &&
+          bestProduct["product name"] &&
+          !graphData.nodes.some((node) => node.id === bestProduct["product name"])
+        ) {
+          graphData.nodes.push({
+            id: bestProduct["product name"],
+            color: "#E74C3C", // Red for Best Product
+            explanation: bestProduct["reason"],
+            image: bestProduct["image link"],
+            symbolType: "circle",
+          });
+
+          // Validate that the domain and bestProduct name are not undefined
+          if (domain && bestProduct["product 1"]["product name"]) {
+            graphData.links.push({
+              source: domain,
+              target: bestProduct["product 1"]["product name"],
+              label: "Best Product",
+            });
+          }
+        }
+      }
+    });
+
+    return graphData;
+  };
+  
+
+  const graphData = aggregateData();
+
+  const config = {
+    nodeHighlightBehavior: true,
+    linkHighlightBehavior: true,
+    highlightOpacity: 0,
+    panAndZoom: true,
+    maxZoom: 3,
+    minZoom: 0,
+    node: {
+      size: 800,
+      highlightStrokeColor: "#FF6347",
+      highlightStrokeWidth: 3,
+      labelProperty: "id",
+      fontSize: 14,
+      fontColor: "#2C3E50",
+      fontWeight: "normal",
+      opacity: 0.9,
+      borderColor: "#34495E",
+      borderWidth: 3,
+      highlightFontSize: 16,
+      highlightFontColor: "#34495E",
+    },
+    link: {
+      highlightColor: "#FF6347",
+      renderLabel: true,
+      labelProperty: "label",
+      fontSize: 14,
+      fontColor: "#2C3E50",
+      strokeWidth: 3,
+      arrowHeadSize: 7,
+      type: "CURVE_SMOOTH",
+    },
+    collapsible: true,
+    automaticRearrangeAfterDropNode: true,
+    directed: true,
+    height: 800,
+    width: 1200,
+    d3: {
+      gravity: -300,
+      zoom: {
+        enabled: true,
+        minZoom: 0.3,
+        maxZoom: 5,
+      },
+    },
+  };
+
+  const handleGraphUpdated = useCallback(() => {
+    if (graphInstance && graphInstance.refs && graphInstance.refs.svg) {
+      const svg = d3.select(graphInstance.refs.svg);
+
+      svg.selectAll("image").remove();
+
+      graphData.nodes.forEach((node) => {
+        const nodeSelection = svg
+          .selectAll("g.node")
+          .filter((d) => d.id === node.id);
+
+        nodeSelection
+          .append("svg:image")
+          .attr("xlink:href", node.image)
+          .attr("x", -30)
+          .attr("y", -30)
+          .attr("width", 80)
+          .attr("height", 80)
+          .attr("clip-path", "url(#clip-path)");
+      });
+
+      svg
+        .append("defs")
+        .append("clipPath")
+        .attr("id", "clip-path")
+        .append("circle")
+        .attr("cx", 0)
+        .attr("cy", 0)
+        .attr("r", 30);
+    }
+  }, [graphInstance, graphData]);
+
+  const handleMouseOverLink = (source, target) => {
+    const linkInfo = graphData.links.find(
+      (link) => link.source === source && link.target === target
+    );
+    setHoveredLink(linkInfo ? linkInfo.label : null);
+  };
+
+  const handleMouseOutLink = () => {
     setHoveredLink(null);
   };
 
-  // Handle link hover event
-  const onMouseOverLink = (source, target) => {
-    setHoveredLink(`${source} -> ${target}`);
-    setHoveredNode(null);
-  };
+  const handleClickNode = (nodeId) => {
+    const nodeInfo = graphData.nodes.find((node) => node.id === nodeId);
+    setSelectedNode(nodeInfo);
 
-  // Reset hover state on mouse out
-  const resetHover = () => {
-    setHoveredNode(null);
-    setHoveredLink(null);
+    if (graphInstance && graphInstance.d3) {
+      const nodeElement = d3.select(graphInstance.d3.select(`.node#${nodeId}`));
+      if (!nodeElement.empty()) {
+        nodeElement.transition().duration(300).attr("fill", "#ff4500");
+      }
+    }
   };
 
   return (
-    <div className="flex flex-col items-center">
-      <h2 className="text-xl font-semibold mb-4">Interactive Network Graph</h2>
+    <div>
+      <h1 className="text-2xl font-bold text-gray-800 mb-8 pb-10 border-gray-300">
+        Network Analysis of Top and Best Products in Different Domains
+      </h1>
+
       <Graph
-        id="graph-id"
-        data={data}
-        config={myConfig}
-        onMouseOverNode={onMouseOverNode}
-        onMouseOverLink={onMouseOverLink}
-        onMouseOutNode={resetHover}
-        onMouseOutLink={resetHover}
+        id="network-graph"
+        data={graphData}
+        config={config}
+        ref={setGraphInstance}
+        onClickNode={handleClickNode}
+        onMouseOverLink={handleMouseOverLink}
+        onMouseOutLink={handleMouseOutLink}
       />
-      <div className="mt-4">
-        {hoveredNode && (
-          <div className="text-blue-600">Hovered Node: {hoveredNode}</div>
+      <div>
+        {selectedNode && (
+          <div className="p-4 bg-white rounded-lg shadow-md border border-gray-200">
+            <img
+              src={selectedNode.image}
+              alt={selectedNode.id}
+              className="w-15 h-1/2 object-cover rounded-lg"
+            />
+            <h3 className="text-lg font-semibold mb-2 text-gray-800">
+              Product Info
+            </h3>
+            <div className="mb-2">
+              <p className="font-semibold text-gray-700">Product Name</p>
+              <p className="text-gray-900">{selectedNode.id}</p>
+            </div>
+            <div className="mb-2">
+              <p className="font-semibold text-gray-700">Explanation:</p>
+              <p className="text-gray-900">{selectedNode.explanation}</p>
+            </div>
+          </div>
         )}
+
         {hoveredLink && (
-          <div className="text-red-600">Hovered Edge: {hoveredLink}</div>
+          <div>
+            <h3>Link Info</h3>
+            <p>{hoveredLink}</p>
+          </div>
         )}
       </div>
     </div>
