@@ -20,7 +20,6 @@ import CustomBarChart from "./CustomBarChart";
 import CustomPieChart from "./CustomPieChart";
 import WordCloudComponent from "./WordCloudComponent";
 import Sidebar from "./Sidebar";
-import NetworkGraph from "./NetworkGraph";
 const Personalize = ({
   tweets,
   selectedBooks,
@@ -171,9 +170,6 @@ const Personalize = ({
           {tweets && tweets.length > 0 && (
             <WordCloudComponent tweets={tweets} />
           )}
-        </div>
-        <div className="w-full md:w-3/4 lg:w-1/2">
-          {  <NetworkGraph/>  }
         </div>
         </div>
     </div>

@@ -383,10 +383,34 @@ const RecommendationDashboard3 = ({
         />
       )}
 
-      <div className="w-full md:w-3/4 lg:w-1/2">{<NetworkGraph  Books={recommendedProducts["Books"]?.top_5}  Beauty={recommendedProducts["All_Beauty"]?.top_5} Fashion={recommendedProducts["Amazon_Fashion"]?.top_5} Phones={recommendedProducts["Cell_Phones_and_Accessories"]?.top_5}  Movies={recommendedProducts["Movies_and_TV"]?.top_5}
-      Booksb={recommendedProducts["Books"]?.top_best}  Beautyb={recommendedProducts["All_Beauty"]?.top_best} Fashionb={recommendedProducts["Amazon_Fashion"]?.top_best} Phonesb={recommendedProducts["Cell_Phones_and_Accessories"]?.top_best}  Moviesb={recommendedProducts["Movies_and_TV"]?.top_best}
+<div className="w-full md:w-3/4 lg:w-1/2">
+  {recommendedProducts["Books"]?.top_5 &&
+   recommendedProducts["All_Beauty"]?.top_5 &&
+   recommendedProducts["Amazon_Fashion"]?.top_5 &&
+   recommendedProducts["Cell_Phones_and_Accessories"]?.top_5 &&
+   recommendedProducts["Movies_and_TV"]?.top_5 &&
+   recommendedProducts["Books"]?.top_best &&
+   recommendedProducts["All_Beauty"]?.top_best &&
+   recommendedProducts["Amazon_Fashion"]?.top_best &&
+   recommendedProducts["Cell_Phones_and_Accessories"]?.top_best &&
+   recommendedProducts["Movies_and_TV"]?.top_best ? (
+    <NetworkGraph
+      Books={recommendedProducts["Books"]?.top_5}
+      Beauty={recommendedProducts["All_Beauty"]?.top_5}
+      Fashion={recommendedProducts["Amazon_Fashion"]?.top_5}
+      Phones={recommendedProducts["Cell_Phones_and_Accessories"]?.top_5}
+      Movies={recommendedProducts["Movies_and_TV"]?.top_5}
+      Booksb={recommendedProducts["Books"]?.top_best}
+      Beautyb={recommendedProducts["All_Beauty"]?.top_best}
+      Fashionb={recommendedProducts["Amazon_Fashion"]?.top_best}
+      Phonesb={recommendedProducts["Cell_Phones_and_Accessories"]?.top_best}
+      Moviesb={recommendedProducts["Movies_and_TV"]?.top_best}
+    />
+  ) : (
+    <div> </div>
+  )}
+</div>
 
- />}</div>
     </div>
   );
 };

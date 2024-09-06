@@ -15,7 +15,7 @@ function Books({ onSelectedBooksChange }) {
       header: true,
       complete: (results) => {
         setItems(results.data);
-        console.log(results.data);
+       // console.log(results.data);
       },
     });
   }, []);

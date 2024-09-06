@@ -15,6 +15,7 @@ import RecommendationDashboard3 from './components/Recommendations/Recommendatio
 import Mainsidebar from './components/NavBar/Mainsidebar';
 import { RecommendationProvider } from './components/Recommendations/RecommendationsContext';
 import { TwitterProvider } from './components/Twitter/TwitterContext';
+import LinkedInDashboard from './components/LinkedIn/LinkedInDashboard.jsx';
 
 function App() {
   const [selectedMovies, setSelectedMovies] = useState([]);
@@ -51,6 +52,12 @@ function App() {
                   path="/twitter" 
                   element={<Dashboard1 setSelectedTweets={setSelectedTweets} setUsername={setUsername} />} 
                 />
+                 
+                 <Route 
+                  path="/linkedin" 
+                  element={<LinkedInDashboard />} 
+                />
+
                 <Route 
                   path="/allbeauty" 
                   element={<AllBeauty onSelectedItemsChange={setSelectedBeauty} onDomainSelect={() => handleDomainSelect('Beauty')} />} 

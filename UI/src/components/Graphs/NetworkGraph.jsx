@@ -148,12 +148,12 @@ const NetworkGraph = ({
       type: "CURVE_SMOOTH",
     },
     collapsible: true,
-    automaticRearrangeAfterDropNode: true,
+    automaticRearrangeAfterDropNode: false,
     directed: true,
-    height: 800,
-    width: 1200,
+    height: 1150,
+    width: 1300,
     d3: {
-      gravity: -300,
+      gravity: -800,
       zoom: {
         enabled: true,
         minZoom: 0.3,
