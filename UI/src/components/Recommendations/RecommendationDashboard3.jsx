@@ -45,6 +45,7 @@ const RecommendationDashboard3 = ({
 
   const [error, setError] = useState(null);
   const [csvData, setCsvData] = useState([]);
+  const [personalityData,setPersonalityData]=useState(null)
   const [truncatedNames, setTruncatedNames] = useState({});
 
   useEffect(() => {
@@ -97,6 +98,14 @@ const RecommendationDashboard3 = ({
     };
 
     try {
+      const response1 = await axios.post(`http://127.0.0.1:5000/personality?username=${username}`);
+      setPersonalityData(response1.data)
+      console.log("personality", response1.data);
+    } catch (error) {
+      console.error("Error fetching personality data:", error);
+    }
+
+    try {
       const response = await axios.post(
         "http://127.0.0.1:5000/getRecomByDomainCrossdomain",
         {
@@ -112,6 +121,7 @@ const RecommendationDashboard3 = ({
           personality: "Based on the provided Twitter posts, the user appears",
         }
       );
+
       const reque = {
         selection: {
           //[domain]: selection[domain] || [], // Include only the selected domain with its data
@@ -122,7 +132,7 @@ const RecommendationDashboard3 = ({
           Cell_Phones_and_Accessories: phones || [],
         },
         domain: domain,
-        personality: "Based on the provided Twitter posts, the user appears",
+        personality:personalityData,
       };
       console.log("request object", reque);
       console.log(`Recommended data for ${domain}:`, response.data);
@@ -383,34 +393,35 @@ const RecommendationDashboard3 = ({
         />
       )}
 
-<div className="w-full md:w-3/4 lg:w-1/2">
-  {recommendedProducts["Books"]?.top_5 &&
-   recommendedProducts["All_Beauty"]?.top_5 &&
-   recommendedProducts["Amazon_Fashion"]?.top_5 &&
-   recommendedProducts["Cell_Phones_and_Accessories"]?.top_5 &&
-   recommendedProducts["Movies_and_TV"]?.top_5 &&
-   recommendedProducts["Books"]?.top_best &&
-   recommendedProducts["All_Beauty"]?.top_best &&
-   recommendedProducts["Amazon_Fashion"]?.top_best &&
-   recommendedProducts["Cell_Phones_and_Accessories"]?.top_best &&
-   recommendedProducts["Movies_and_TV"]?.top_best ? (
-    <NetworkGraph
-      Books={recommendedProducts["Books"]?.top_5}
-      Beauty={recommendedProducts["All_Beauty"]?.top_5}
-      Fashion={recommendedProducts["Amazon_Fashion"]?.top_5}
-      Phones={recommendedProducts["Cell_Phones_and_Accessories"]?.top_5}
-      Movies={recommendedProducts["Movies_and_TV"]?.top_5}
-      Booksb={recommendedProducts["Books"]?.top_best}
-      Beautyb={recommendedProducts["All_Beauty"]?.top_best}
-      Fashionb={recommendedProducts["Amazon_Fashion"]?.top_best}
-      Phonesb={recommendedProducts["Cell_Phones_and_Accessories"]?.top_best}
-      Moviesb={recommendedProducts["Movies_and_TV"]?.top_best}
-    />
-  ) : (
-    <div> </div>
-  )}
-</div>
-
+      <div className="w-full md:w-3/4 lg:w-1/2">
+        {recommendedProducts["Books"]?.top_5 &&
+        recommendedProducts["All_Beauty"]?.top_5 &&
+        recommendedProducts["Amazon_Fashion"]?.top_5 &&
+        recommendedProducts["Cell_Phones_and_Accessories"]?.top_5 &&
+        recommendedProducts["Movies_and_TV"]?.top_5 &&
+        recommendedProducts["Books"]?.top_best &&
+        recommendedProducts["All_Beauty"]?.top_best &&
+        recommendedProducts["Amazon_Fashion"]?.top_best &&
+        recommendedProducts["Cell_Phones_and_Accessories"]?.top_best &&
+        recommendedProducts["Movies_and_TV"]?.top_best ? (
+          <NetworkGraph
+            Books={recommendedProducts["Books"]?.top_5}
+            Beauty={recommendedProducts["All_Beauty"]?.top_5}
+            Fashion={recommendedProducts["Amazon_Fashion"]?.top_5}
+            Phones={recommendedProducts["Cell_Phones_and_Accessories"]?.top_5}
+            Movies={recommendedProducts["Movies_and_TV"]?.top_5}
+            Booksb={recommendedProducts["Books"]?.top_best}
+            Beautyb={recommendedProducts["All_Beauty"]?.top_best}
+            Fashionb={recommendedProducts["Amazon_Fashion"]?.top_best}
+            Phonesb={
+              recommendedProducts["Cell_Phones_and_Accessories"]?.top_best
+            }
+            Moviesb={recommendedProducts["Movies_and_TV"]?.top_best}
+          />
+        ) : (
+          <div> </div>
+        )}
+      </div>
     </div>
   );
 };
