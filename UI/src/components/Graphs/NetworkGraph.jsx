@@ -3,6 +3,7 @@ import { Graph } from "react-d3-graph";
 import * as d3 from "d3";
 
 const NetworkGraph = ({
+  Name={},
   Books = {},
   Beauty = {},
   Fashion = {},
@@ -34,7 +35,7 @@ const NetworkGraph = ({
     const graphData = {
       nodes: [
         {
-          id: "User",
+          id: Name,
           color: "#4A90E2", // Blue for User node
           image: "https://via.placeholder.com/60?text=User",
           symbolType: "diamond",
@@ -60,7 +61,7 @@ const NetworkGraph = ({
           domainNodes.add(domain);
 
           graphData.links.push({
-            source: "User",
+            source: Name,
             target: domain,
           });
         }

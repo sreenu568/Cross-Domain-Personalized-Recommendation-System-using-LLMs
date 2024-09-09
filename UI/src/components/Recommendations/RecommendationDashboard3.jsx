@@ -405,6 +405,7 @@ const RecommendationDashboard3 = ({
         recommendedProducts["Cell_Phones_and_Accessories"]?.top_best &&
         recommendedProducts["Movies_and_TV"]?.top_best ? (
           <NetworkGraph
+            Name={username}
             Books={recommendedProducts["Books"]?.top_5}
             Beauty={recommendedProducts["All_Beauty"]?.top_5}
             Fashion={recommendedProducts["Amazon_Fashion"]?.top_5}
