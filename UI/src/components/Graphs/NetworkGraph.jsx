@@ -18,6 +18,16 @@ const NetworkGraph = ({
   const [selectedNode, setSelectedNode] = useState(null);
   const [graphInstance, setGraphInstance] = useState(null);
 
+  // Helper function to truncate text to a maximum of 3 words
+  const truncateText = (text) => {
+    if (!text) return text;
+    const words = text.split(" ");
+    if (words.length > 3) {
+      return words.slice(0, 3).join(" ") + "...";
+    }
+    return text;
+  };
+
   const aggregateData = () => {
     const domainData = { Books, Beauty, Fashion, Phones, Movies };
     const bestProductData = { Booksb, Beautyb, Fashionb, Phonesb, Moviesb };
@@ -38,7 +48,6 @@ const NetworkGraph = ({
     Object.keys(domainData).forEach((domain) => {
       const domainProducts = domainData[domain];
       const bestProduct = bestProductData[`${domain}b`];
-      console.log("best product",bestProduct);
       if (domainProducts) {
         if (!domainNodes.has(domain)) {
           graphData.nodes.push({
@@ -59,15 +68,18 @@ const NetworkGraph = ({
         Object.keys(domainProducts).forEach((key) => {
           const product = domainProducts[key];
           if (product && product["product name"]) {
+            const fullName = product["product name"];
+            const truncatedName = truncateText(fullName);
             const isBestProduct =
               bestProduct &&
-              bestProduct["product 1"]["product name"] === product["product name"];
-              console.log("product name",bestProduct["product 1"]["product name"]);
-              console.log("product name1",product["product name"]);
+              truncateText(bestProduct["product 1"]["product name"]) ===
+                truncatedName;
+
             // Validate that product has an ID before adding it to nodes
-            if (product["product name"]) {
+            if (fullName) {
               graphData.nodes.push({
-                id: product["product name"],
+                id: truncatedName,
+                fullName: fullName, // Store the full name
                 color: isBestProduct ? "#E74C3C" : "#F39C12", // Red for best product
                 explanation: product["reason"],
                 image: product["image link"],
@@ -75,10 +87,10 @@ const NetworkGraph = ({
               });
 
               // Validate that the domain and product name are not undefined
-              if (domain && product["product name"]) {
+              if (domain && truncatedName) {
                 graphData.links.push({
                   source: domain,
-                  target: product["product name"],
+                  target: truncatedName,
                 });
               }
             }
@@ -88,10 +100,15 @@ const NetworkGraph = ({
         if (
           bestProduct &&
           bestProduct["product name"] &&
-          !graphData.nodes.some((node) => node.id === bestProduct["product name"])
+          !graphData.nodes.some(
+            (node) => node.id === truncateText(bestProduct["product name"])
+          )
         ) {
+          const fullName = bestProduct["product name"];
+          const truncatedBestName = truncateText(fullName);
           graphData.nodes.push({
-            id: bestProduct["product name"],
+            id: truncatedBestName,
+            fullName: fullName, // Store the full name
             color: "#E74C3C", // Red for Best Product
             explanation: bestProduct["reason"],
             image: bestProduct["image link"],
@@ -102,7 +119,7 @@ const NetworkGraph = ({
           if (domain && bestProduct["product 1"]["product name"]) {
             graphData.links.push({
               source: domain,
-              target: bestProduct["product 1"]["product name"],
+              target: truncatedBestName,
               label: "Best Product",
             });
           }
@@ -112,7 +129,6 @@ const NetworkGraph = ({
 
     return graphData;
   };
-  
 
   const graphData = aggregateData();
 
@@ -150,10 +166,10 @@ const NetworkGraph = ({
     collapsible: true,
     automaticRearrangeAfterDropNode: false,
     directed: true,
-    height: 1150,
+    height: 1000,
     width: 1300,
     d3: {
-      gravity: -800,
+      gravity: -500,
       zoom: {
         enabled: true,
         minZoom: 0.3,
@@ -219,7 +235,7 @@ const NetworkGraph = ({
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-800 mb-8 pb-10 border-gray-300">
+      <h1 className="text-2xl font-bold text-gray-800 mb-4 pb-10 border-gray-300">
         Network Analysis of Top and Best Products in Different Domains
       </h1>
 
@@ -238,14 +254,14 @@ const NetworkGraph = ({
             <img
               src={selectedNode.image}
               alt={selectedNode.id}
-              className="w-15 h-1/2 object-cover rounded-lg"
+              className="w-14.5 h-1/2 object-cover rounded-lg"
             />
             <h3 className="text-lg font-semibold mb-2 text-gray-800">
               Product Info
             </h3>
             <div className="mb-2">
-              <p className="font-semibold text-gray-700">Product Name</p>
-              <p className="text-gray-900">{selectedNode.id}</p>
+              <p className="font-semibold text-gray-700">Full Name</p>
+              <p className="text-gray-900">{selectedNode.fullName}</p>
             </div>
             <div className="mb-2">
               <p className="font-semibold text-gray-700">Explanation:</p>
